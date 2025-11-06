@@ -112,16 +112,20 @@ class ApacheManager: ObservableObject {
         }
     }
     
-    func stop() {
+    func stop() async {
         guard isRunning, let process = apacheProcess else { return }
         
         process.terminate()
         
-        // Wait for process to terminate
-        process.waitUntilExit()
+        // Wait for process to terminate asynchronously
+        await Task {
+            process.waitUntilExit()
+        }.value
         
-        apacheProcess = nil
-        isRunning = false
+        await MainActor.run {
+            self.apacheProcess = nil
+            self.isRunning = false
+        }
         
         // Clean up PID file
         try? FileManager.default.removeItem(atPath: pidFilePath)

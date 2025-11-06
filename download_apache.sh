@@ -47,6 +47,7 @@ if command -v httpd &> /dev/null; then
     fi
     
     # Copy mime.types if available
+    mkdir -p "$RESOURCES_DIR/conf"
     if [ -f "/etc/apache2/mime.types" ]; then
         cp "/etc/apache2/mime.types" "$RESOURCES_DIR/conf/"
     elif [ -f "/private/etc/apache2/mime.types" ]; then

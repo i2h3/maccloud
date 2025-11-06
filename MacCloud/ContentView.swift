@@ -74,8 +74,8 @@ struct ContentView: View {
         serverState = .stopping
         
         Task {
+            await apacheManager.stop()
             await MainActor.run {
-                apacheManager.stop()
                 serverState = .stopped
             }
         }
