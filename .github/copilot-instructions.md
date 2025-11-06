@@ -28,7 +28,7 @@ MacCloud/
 ## Code Conventions
 
 ### Swift Style
-- Use Swift 5+ features and modern SwiftUI patterns
+- Use Swift 6 features and modern SwiftUI patterns
 - Follow Apple's Swift API Design Guidelines
 - Use meaningful, descriptive names for variables, functions, and types
 - Prefer `let` over `var` when possible for immutability
@@ -38,7 +38,7 @@ MacCloud/
 - Use `@State` for local view state
 - Implement `#Preview` macros for UI component previews
 - Keep views focused and composable
-- Extract complex logic into separate functions or view models
+- Extract complex logic into separate functions
 
 ### Code Organization
 - One primary type per file
@@ -56,7 +56,6 @@ This is an Xcode project. To build:
 ### Running the Application
 - Run the app in Xcode using Cmd+R or Product > Run
 - The app provides a simple UI to start/stop the Nextcloud server
-- Server runs on `http://localhost:8080` when active
 
 ### Testing
 - Use SwiftUI previews (`#Preview`) for rapid UI iteration
