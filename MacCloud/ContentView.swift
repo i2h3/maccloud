@@ -8,17 +8,26 @@ enum ServerState {
 }
 
 struct ContentView: View {
+    @StateObject private var apacheManager = ApacheManager()
     @State private var serverState: ServerState
+    @State private var errorMessage: String?
 
     init(serverState: ServerState = .stopped) {
-        self.serverState = serverState
+        self._serverState = State(initialValue: serverState)
     }
 
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             switch serverState {
                 case .stopped:
-                    Text("Nextcloud server is stopped.")
+                    Text("Apache server is stopped.")
+                    
+                    if let error = errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                            .multilineTextAlignment(.center)
+                    }
 
                     Button {
                         start()
@@ -27,7 +36,7 @@ struct ContentView: View {
                     }
                     
                 case .running:
-                    Text("Nextcloud server is running on [http://localhost:8080](http://localhost:8080).")
+                    Text("Apache server is running on [http://localhost:8080](http://localhost:8080).")
 
                     Button {
                         stop()
@@ -42,9 +51,35 @@ struct ContentView: View {
         .padding()
     }
 
-    func start() {}
+    func start() {
+        serverState = .starting
+        errorMessage = nil
+        
+        Task {
+            do {
+                try await apacheManager.start()
+                await MainActor.run {
+                    serverState = .running
+                }
+            } catch {
+                await MainActor.run {
+                    serverState = .stopped
+                    errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
 
-    func stop() {}
+    func stop() {
+        serverState = .stopping
+        
+        Task {
+            await MainActor.run {
+                apacheManager.stop()
+                serverState = .stopped
+            }
+        }
+    }
 }
 
 #Preview("Stopped") {

@@ -60,3 +60,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Apache binaries and modules (downloaded during build)
+MacCloud/Resources/apache/bin/httpd
+MacCloud/Resources/apache/modules/*.so
