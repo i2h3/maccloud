@@ -39,12 +39,13 @@ Builds Apache HTTP Server 2.4.65 with required dependencies.
 Builds PHP 8.4.3 with PHP-FPM enabled.
 
 **What it does:**
-1. Downloads PHP from php.net
-2. Caches downloaded archive in `Cache/`
-3. Extracts source to `Build/`
-4. Configures PHP with extensions required by Nextcloud
-5. Compiles PHP
-6. Installs to the build products directory
+1. Downloads PHP from php.net and pkg-config from freedesktop.org
+2. Caches downloaded archives in `Cache/`
+3. Builds pkg-config (required dependency for PHP)
+4. Extracts PHP source to `Build/`
+5. Configures PHP with extensions required by Nextcloud
+6. Compiles PHP
+7. Installs to the build products directory
 
 **Required extensions:**
 - mbstring - Multi-byte string support
@@ -67,7 +68,8 @@ Cache/
 ├── apr-1.7.6.tar.bz2
 ├── apr-util-1.6.3.tar.bz2
 ├── pcre2-10.47.tar.bz2
-└── php-8.4.3.tar.gz
+├── php-8.4.3.tar.gz
+└── pkg-config-0.29.2.tar.gz
 ```
 
 This cache:

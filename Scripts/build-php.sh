@@ -12,9 +12,14 @@ PHP_VERSION="8.4.3"
 PHP_SOURCE="php-${PHP_VERSION}"
 PHP_TARBALL="${PHP_SOURCE}.tar.gz"
 PHP_URL="https://www.php.net/distributions/${PHP_TARBALL}"
+PKG_CONFIG_VERSION="0.29.2"
+PKG_CONFIG_SOURCE="pkg-config-${PKG_CONFIG_VERSION}"
+PKG_CONFIG_TARBALL="${PKG_CONFIG_SOURCE}.tar.gz"
+PKG_CONFIG_URL="https://pkgconfig.freedesktop.org/releases/${PKG_CONFIG_TARBALL}"
 
 BUILD_DIR="${PROJECT_ROOT}/Build"
 INSTALL_DIR="${BUILD_PRODUCTS_DIR:-${BUILD_DIR}/Products}/PHP"
+PKG_CONFIG_INSTALL_DIR="${BUILD_DIR}/pkg-config-install"
 
 echo "=================================================="
 echo "Building PHP ${PHP_VERSION}"
@@ -36,6 +41,36 @@ if [ ! -f "${CACHE_DIR}/${PHP_TARBALL}" ]; then
 else
     echo "Using cached PHP ${PHP_VERSION}"
 fi
+
+# Download and cache pkg-config if not already cached
+if [ ! -f "${CACHE_DIR}/${PKG_CONFIG_TARBALL}" ]; then
+    echo "Downloading pkg-config ${PKG_CONFIG_VERSION} from ${PKG_CONFIG_URL}"
+    curl -L -o "${CACHE_DIR}/${PKG_CONFIG_TARBALL}" "${PKG_CONFIG_URL}"
+else
+    echo "Using cached pkg-config ${PKG_CONFIG_VERSION}"
+fi
+
+# Build pkg-config first (required for PHP)
+echo "Building pkg-config..."
+cd "${BUILD_DIR}"
+if [ -d "${PKG_CONFIG_SOURCE}" ]; then
+    rm -rf "${PKG_CONFIG_SOURCE}"
+fi
+tar xzf "${CACHE_DIR}/${PKG_CONFIG_TARBALL}"
+cd "${PKG_CONFIG_SOURCE}"
+
+echo "Configuring pkg-config..."
+./configure --prefix="${PKG_CONFIG_INSTALL_DIR}" --with-internal-glib
+
+echo "Building pkg-config (this may take a few minutes)..."
+make -j$(sysctl -n hw.ncpu)
+
+echo "Installing pkg-config to ${PKG_CONFIG_INSTALL_DIR}..."
+make install
+
+# Add pkg-config to PATH for PHP build
+export PATH="${PKG_CONFIG_INSTALL_DIR}/bin:${PATH}"
+export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
 
 # Extract PHP
 echo "Extracting PHP..."
