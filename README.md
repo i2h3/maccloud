@@ -79,9 +79,10 @@ Downloaded sources are cached to speed up rebuilds:
 
 ```
 Cache/
-├── httpd-2.4.62.tar.gz
-├── apr-1.7.5.tar.gz
-├── apr-util-1.6.3.tar.gz
+├── httpd-2.4.65.tar.bz2
+├── apr-1.7.6.tar.bz2
+├── apr-util-1.6.3.tar.bz2
+├── pcre2-10.47.tar.bz2
 └── php-8.4.3.tar.gz
 ```
 

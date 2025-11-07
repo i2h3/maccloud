@@ -14,15 +14,16 @@ MacCloud builds Apache HTTP Server and PHP-FPM from source to ensure:
 
 ### build-apache.sh
 
-Builds Apache HTTP Server 2.4.62 with required dependencies.
+Builds Apache HTTP Server 2.4.65 with required dependencies.
 
 **What it does:**
-1. Downloads Apache, APR, and APR-Util from apache.org
+1. Downloads Apache, APR, APR-Util, and PCRE2 from their respective sources
 2. Caches downloaded archives in `Cache/`
-3. Extracts sources to `Build/`
-4. Configures Apache with necessary modules for Nextcloud
-5. Compiles Apache
-6. Installs to the build products directory
+3. Builds PCRE2 (required dependency for Apache)
+4. Extracts Apache sources to `Build/`
+5. Configures Apache with necessary modules for Nextcloud
+6. Compiles Apache
+7. Installs to the build products directory
 
 **Required modules:**
 - mod_proxy - HTTP proxy support
@@ -62,9 +63,10 @@ Downloaded source archives are cached in `Cache/` at the project root:
 
 ```
 Cache/
-├── httpd-2.4.62.tar.gz
-├── apr-1.7.5.tar.gz
-├── apr-util-1.6.3.tar.gz
+├── httpd-2.4.65.tar.bz2
+├── apr-1.7.6.tar.bz2
+├── apr-util-1.6.3.tar.bz2
+├── pcre2-10.47.tar.bz2
 └── php-8.4.3.tar.gz
 ```
 
