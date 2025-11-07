@@ -134,32 +134,33 @@ fi
 
 ## Step 5: Update ServerManager to Find Bundled Resources
 
-The `ServerManager.swift` already looks for resources using:
+The `ServerManager.swift` already uses the correct approach to find bundled resources:
 
 ```swift
-Bundle.main.path(forResource: "httpd", ofType: nil)
-Bundle.main.path(forResource: "php-fpm", ofType: nil)
-Bundle.main.path(forResource: "php", ofType: nil)
-```
-
-However, since we're copying directories, we need to update the paths. Modify `ServerManager.swift` to use:
-
-```swift
-// For Apache
+// Get resources path
 guard let resourcesPath = Bundle.main.resourcePath else {
-    throw NSError(domain: "ServerManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Resources path not found"])
+    throw NSError(domain: "ServerManager", code: 2, 
+                  userInfo: [NSLocalizedDescriptionKey: "Resources path not found"])
 }
-let apachePath = "\(resourcesPath)/Apache/bin/httpd"
+
+// For Apache
+let apachePath = URL(fileURLWithPath: resourcesPath)
+    .appending(component: "Apache/bin/httpd")
 
 // For PHP-FPM
-let phpFpmPath = "\(resourcesPath)/PHP/sbin/php-fpm"
+let phpFpmPath = URL(fileURLWithPath: resourcesPath)
+    .appending(component: "PHP/sbin/php-fpm")
 
 // For PHP CLI
-let phpPath = "\(resourcesPath)/PHP/bin/php"
+let phpPath = URL(fileURLWithPath: resourcesPath)
+    .appending(component: "PHP/bin/php")
 
 // For Apache modules
-let apacheModulesDir = "\(resourcesPath)/Apache/modules"
+let apacheModulesDir = URL(fileURLWithPath: resourcesPath)
+    .appending(component: "Apache/modules")
 ```
+
+This approach works correctly with the resource bundling configured in Step 4.
 
 ## Step 6: Create Schemes
 

@@ -109,9 +109,15 @@ class ServerManager: ObservableObject {
         let webRoot = destination.appending(component: "www")
         try fileManager.createDirectory(at: webRoot, withIntermediateDirectories: true)
         
+        // Find unzip command
+        let unzipPath = findUnzip()
+        guard fileManager.fileExists(atPath: unzipPath) else {
+            throw NSError(domain: "ServerManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "unzip command not found. Please install Command Line Tools."])
+        }
+        
         // Use unzip command to extract the archive
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+        process.executableURL = URL(fileURLWithPath: unzipPath)
         process.arguments = ["-q", archive.path(percentEncoded: false), "-d", webRoot.path(percentEncoded: false)]
         
         try process.run()
@@ -120,6 +126,47 @@ class ServerManager: ObservableObject {
         guard process.terminationStatus == 0 else {
             throw NSError(domain: "ServerManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to extract Nextcloud archive"])
         }
+    }
+    
+    private func findUnzip() -> String {
+        // Try common locations for unzip
+        let commonPaths = [
+            "/usr/bin/unzip",
+            "/bin/unzip",
+            "/opt/homebrew/bin/unzip",
+            "/usr/local/bin/unzip"
+        ]
+        
+        for path in commonPaths {
+            if fileManager.fileExists(atPath: path) {
+                return path
+            }
+        }
+        
+        // Try using which command as fallback
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
+        process.arguments = ["unzip"]
+        
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            if process.terminationStatus == 0 {
+                let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                if let path = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines), !path.isEmpty {
+                    return path
+                }
+            }
+        } catch {
+            // Fall back to default if which fails
+        }
+        
+        // Default fallback
+        return "/usr/bin/unzip"
     }
     
     private func generateApacheConfig(port: UInt, deploymentDir: URL) throws -> String {
