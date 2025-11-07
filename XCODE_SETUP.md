@@ -80,11 +80,11 @@ bash Scripts/build-php.sh
 
 1. Select the **MacCloud** target
 2. Go to **Build Phases** tab
-3. Click **+** → **New Dependencies Phase** (if it doesn't exist)
-4. Click **+** in the **Dependencies** section
-5. Add **Apache** target
-6. Click **+** again
-7. Add **PHP** target
+3. Locate the **Dependencies** section (if it doesn't exist, click **+** at the top and select **New Dependencies Phase**)
+4. Click **+** within the **Dependencies** section
+5. Add **Apache** target from the list
+6. Click **+** again within the **Dependencies** section
+7. Add **PHP** target from the list
 
 This ensures Apache and PHP are built before MacCloud.
 

@@ -125,7 +125,7 @@ All deployments use the same default credentials for simplicity in testing:
 - **Username**: `admin`
 - **Password**: `admin`
 
-> Warning: These are insecure defaults suitable only for temporary testing environments. Do not use MacCloud deployments for production or with sensitive data.
+> **Security Warning**: These are insecure defaults suitable only for temporary testing environments. Do not use MacCloud deployments for production or with sensitive data. Always use MacCloud in isolated, non-production environments only.
 
 ## Logging
 

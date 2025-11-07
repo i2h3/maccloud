@@ -20,6 +20,11 @@ echo "=================================================="
 echo "Building PHP ${PHP_VERSION}"
 echo "=================================================="
 
+# Ensure BUILD_PRODUCTS_DIR has a value
+if [ -z "${BUILD_PRODUCTS_DIR}" ]; then
+    echo "Note: BUILD_PRODUCTS_DIR not set, using default: ${BUILD_DIR}/Products"
+fi
+
 # Create cache directory if it doesn't exist
 mkdir -p "${CACHE_DIR}"
 mkdir -p "${BUILD_DIR}"
