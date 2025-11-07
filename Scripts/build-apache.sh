@@ -20,9 +20,14 @@ APR_UTIL_VERSION="1.6.3"
 APR_UTIL_SOURCE="apr-util-${APR_UTIL_VERSION}"
 APR_UTIL_TARBALL="${APR_UTIL_SOURCE}.tar.bz2"
 APR_UTIL_URL="https://downloads.apache.org/apr/${APR_UTIL_TARBALL}"
+PCRE2_VERSION="10.47"
+PCRE2_SOURCE="pcre2-${PCRE2_VERSION}"
+PCRE2_TARBALL="${PCRE2_SOURCE}.tar.bz2"
+PCRE2_URL="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/${PCRE2_TARBALL}"
 
 BUILD_DIR="${PROJECT_ROOT}/Build"
 INSTALL_DIR="${BUILD_PRODUCTS_DIR:-${BUILD_DIR}/Products}/Apache"
+PCRE2_INSTALL_DIR="${BUILD_DIR}/pcre2-install"
 
 echo "=================================================="
 echo "Building Apache HTTP Server ${APACHE_VERSION}"
@@ -61,13 +66,39 @@ else
     echo "Using cached APR-Util ${APR_UTIL_VERSION}"
 fi
 
+# Download and cache PCRE2 if not already cached
+if [ ! -f "${CACHE_DIR}/${PCRE2_TARBALL}" ]; then
+    echo "Downloading PCRE2 ${PCRE2_VERSION} from ${PCRE2_URL}"
+    curl -L -o "${CACHE_DIR}/${PCRE2_TARBALL}" "${PCRE2_URL}"
+else
+    echo "Using cached PCRE2 ${PCRE2_VERSION}"
+fi
+
+# Build PCRE2 first (required for Apache)
+echo "Building PCRE2..."
+cd "${BUILD_DIR}"
+if [ -d "${PCRE2_SOURCE}" ]; then
+    rm -rf "${PCRE2_SOURCE}"
+fi
+tar xjf "${CACHE_DIR}/${PCRE2_TARBALL}"
+cd "${PCRE2_SOURCE}"
+
+echo "Configuring PCRE2..."
+./configure --prefix="${PCRE2_INSTALL_DIR}" --enable-jit
+
+echo "Building PCRE2 (this may take a few minutes)..."
+make -j$(sysctl -n hw.ncpu)
+
+echo "Installing PCRE2 to ${PCRE2_INSTALL_DIR}..."
+make install
+
 # Extract Apache
 echo "Extracting Apache..."
 cd "${BUILD_DIR}"
 if [ -d "${APACHE_SOURCE}" ]; then
     rm -rf "${APACHE_SOURCE}"
 fi
-tar xzf "${CACHE_DIR}/${APACHE_TARBALL}"
+tar xjf "${CACHE_DIR}/${APACHE_TARBALL}"
 
 # Extract APR into Apache srclib
 echo "Extracting APR..."
@@ -75,7 +106,7 @@ cd "${BUILD_DIR}/${APACHE_SOURCE}/srclib"
 if [ -d "apr" ]; then
     rm -rf "apr"
 fi
-tar xzf "${CACHE_DIR}/${APR_TARBALL}"
+tar xjf "${CACHE_DIR}/${APR_TARBALL}"
 mv "${APR_SOURCE}" apr
 
 # Extract APR-Util into Apache srclib
@@ -83,7 +114,7 @@ echo "Extracting APR-Util..."
 if [ -d "apr-util" ]; then
     rm -rf "apr-util"
 fi
-tar xzf "${CACHE_DIR}/${APR_UTIL_TARBALL}"
+tar xjf "${CACHE_DIR}/${APR_UTIL_TARBALL}"
 mv "${APR_UTIL_SOURCE}" apr-util
 
 # Configure and build Apache
@@ -93,6 +124,7 @@ cd "${BUILD_DIR}/${APACHE_SOURCE}"
 ./configure \
     --prefix="${INSTALL_DIR}" \
     --with-included-apr \
+    --with-pcre="${PCRE2_INSTALL_DIR}/bin/pcre2-config" \
     --enable-mods-shared=few \
     --enable-proxy \
     --enable-proxy-fcgi \
