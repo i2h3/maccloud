@@ -181,6 +181,16 @@ class ServerManager: ObservableObject {
         
         let apachePath = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/bin/httpd")
         let apacheModulesDir = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/modules")
+        let mimeTypesPath = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/conf/mime.types")
+        
+        // Build TypesConfig directive - only include if mime.types exists
+        let typesConfigLine: String
+        if fileManager.fileExists(atPath: mimeTypesPath.path(percentEncoded: false)) {
+            typesConfigLine = "TypesConfig \"\(mimeTypesPath.path(percentEncoded: false))\""
+        } else {
+            logger.warning("mime.types not found at expected location, skipping TypesConfig directive")
+            typesConfigLine = "# TypesConfig not set - mime.types file not found"
+        }
         
         return """
         ServerRoot "\(URL(fileURLWithPath: resourcesPath).appending(component: "Apache").path(percentEncoded: false))"
@@ -220,11 +230,11 @@ class ServerManager: ObservableObject {
         </FilesMatch>
         
         <IfModule mime_module>
-            TypesConfig "\(URL(fileURLWithPath: resourcesPath).appending(component: "Apache/conf/mime.types").path(percentEncoded: false))"
+            \(typesConfigLine)
             AddType application/x-compress .Z
             AddType application/x-gzip .gz .tgz
-            AddType text/html .shtml
-            AddOutputFilter INCLUDES .shtml
+            AddType application/x-httpd-php .php
+            AddType text/html .html .htm
         </IfModule>
         """
     }
