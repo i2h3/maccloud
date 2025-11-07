@@ -60,7 +60,8 @@ tar xzf "${CACHE_DIR}/${PKG_CONFIG_TARBALL}"
 cd "${PKG_CONFIG_SOURCE}"
 
 echo "Configuring pkg-config..."
-./configure --prefix="${PKG_CONFIG_INSTALL_DIR}" --with-internal-glib
+# Use CFLAGS to allow warnings that would otherwise be errors in newer compilers
+CFLAGS="-Wno-int-conversion -Wno-incompatible-pointer-types" ./configure --prefix="${PKG_CONFIG_INSTALL_DIR}" --with-internal-glib
 
 echo "Building pkg-config (this may take a few minutes)..."
 make -j$(sysctl -n hw.ncpu)
