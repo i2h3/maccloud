@@ -47,10 +47,10 @@ SQLite Database
 
 ## Ephemeral Deployments
 
-Each server instance creates a temporary deployment directory:
+Each server instance creates a temporary deployment directory using a UUID:
 
 ```
-/tmp/MacCloud-<UUID>/
+<temporaryDirectory>/<UUID>/
 ```
 
 This design provides:

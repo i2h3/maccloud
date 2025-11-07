@@ -234,7 +234,7 @@ This approach works correctly with the resource bundling configured in Step 4.
 To perform a completely clean build:
 
 1. Choose **Product** → **Clean Build Folder** (⇧⌘K)
-2. Delete `BuildCache/` directory
+2. Delete `Cache/` directory
 3. Delete `Build/` directory
 4. Rebuild
 

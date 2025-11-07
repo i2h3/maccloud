@@ -7,7 +7,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-CACHE_DIR="${PROJECT_ROOT}/BuildCache"
+CACHE_DIR="${PROJECT_ROOT}/Cache"
 APACHE_VERSION="2.4.65"
 APACHE_SOURCE="httpd-${APACHE_VERSION}"
 APACHE_TARBALL="${APACHE_SOURCE}.tar.bz2"

@@ -93,7 +93,7 @@ class ServerManager: ObservableObject {
     
     private func createDeploymentDirectory() throws -> URL {
         let tempDir = fileManager.temporaryDirectory
-            .appending(component: "MacCloud-\(UUID().uuidString)")
+            .appending(component: UUID().uuidString)
         
         try fileManager.createDirectory(at: tempDir, withIntermediateDirectories: true)
         

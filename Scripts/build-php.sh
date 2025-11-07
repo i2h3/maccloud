@@ -7,7 +7,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-CACHE_DIR="${PROJECT_ROOT}/BuildCache"
+CACHE_DIR="${PROJECT_ROOT}/Cache"
 PHP_VERSION="8.4.3"
 PHP_SOURCE="php-${PHP_VERSION}"
 PHP_TARBALL="${PHP_SOURCE}.tar.gz"
