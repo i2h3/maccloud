@@ -3,8 +3,9 @@ import SwiftUI
 @main
 struct MacCloudApp: App {
     var body: some Scene {
-        WindowGroup {
+        Window("MacCloud", id: "main") {
             ContentView()
         }
+        .windowResizability(.contentMinSize)
     }
 }
