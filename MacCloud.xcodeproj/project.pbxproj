@@ -6,6 +6,52 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		AA3F34DB2EBE24B600C81B81 /* Apache */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = AA3F34DE2EBE24B600C81B81 /* Build configuration list for PBXAggregateTarget "Apache" */;
+			buildPhases = (
+				AA3F34E32EBE24DB00C81B81 /* Build Apache */,
+			);
+			dependencies = (
+			);
+			name = Apache;
+			packageProductDependencies = (
+			);
+			productName = Apache;
+		};
+		AA3F34DF2EBE24CD00C81B81 /* PHP */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = AA3F34E02EBE24CD00C81B81 /* Build configuration list for PBXAggregateTarget "PHP" */;
+			buildPhases = (
+				AA3F34E42EBE260100C81B81 /* Build PHP */,
+			);
+			dependencies = (
+			);
+			name = PHP;
+			packageProductDependencies = (
+			);
+			productName = PHP;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXContainerItemProxy section */
+		AA3F34E52EBE264B00C81B81 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA2D85FE2EBCF12D0045E836 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA3F34DB2EBE24B600C81B81;
+			remoteInfo = Apache;
+		};
+		AA3F34E72EBE264B00C81B81 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA2D85FE2EBCF12D0045E836 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA3F34DF2EBE24CD00C81B81;
+			remoteInfo = PHP;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		AA2D86062EBCF12D0045E836 /* MacCloud.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacCloud.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA2D861A2EBCF1630045E836 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -21,6 +67,11 @@
 		AA2D86442EBDF5D20045E836 /* .github */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = .github;
+			sourceTree = "<group>";
+		};
+		AA3F34ED2EBE284800C81B81 /* Scripts */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Scripts;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -43,6 +94,7 @@
 				AA2D861A2EBCF1630045E836 /* LICENSE */,
 				AA2D861B2EBCF1630045E836 /* README.md */,
 				AA2D86082EBCF12D0045E836 /* MacCloud */,
+				AA3F34ED2EBE284800C81B81 /* Scripts */,
 				AA2D86072EBCF12D0045E836 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -69,6 +121,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				AA3F34E62EBE264B00C81B81 /* PBXTargetDependency */,
+				AA3F34E82EBE264B00C81B81 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AA2D86082EBCF12D0045E836 /* MacCloud */,
@@ -93,6 +147,12 @@
 					AA2D86052EBCF12D0045E836 = {
 						CreatedOnToolsVersion = 26.1;
 					};
+					AA3F34DB2EBE24B600C81B81 = {
+						CreatedOnToolsVersion = 26.1;
+					};
+					AA3F34DF2EBE24CD00C81B81 = {
+						CreatedOnToolsVersion = 26.1;
+					};
 				};
 			};
 			buildConfigurationList = AA2D86012EBCF12D0045E836 /* Build configuration list for PBXProject "MacCloud" */;
@@ -110,6 +170,8 @@
 			projectRoot = "";
 			targets = (
 				AA2D86052EBCF12D0045E836 /* MacCloud */,
+				AA3F34DB2EBE24B600C81B81 /* Apache */,
+				AA3F34DF2EBE24CD00C81B81 /* PHP */,
 			);
 		};
 /* End PBXProject section */
@@ -124,6 +186,58 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AA3F34E32EBE24DB00C81B81 /* Build Apache */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Scripts/build-apache.sh",
+			);
+			name = "Build Apache";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/Apache/bin/httpd",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_proxy.so",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_proxy_fcgi.so",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_rewrite.so",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_mime.so",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_dir.so",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_env.so",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_authz_core.so",
+				"$(BUILT_PRODUCTS_DIR)/Apache/modules/mod_mpm_prefork.so",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "cd \"${SRCROOT}\"\nbash Scripts/build-apache.sh\n";
+		};
+		AA3F34E42EBE260100C81B81 /* Build PHP */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Scripts/build-php.sh",
+			);
+			name = "Build PHP";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/PHP/sbin/php-fpm",
+				"$(BUILT_PRODUCTS_DIR)/PHP/bin/php",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "cd \"${SRCROOT}\"\nbash Scripts/build-php.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		AA2D86022EBCF12D0045E836 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -133,6 +247,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA3F34E62EBE264B00C81B81 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA3F34DB2EBE24B600C81B81 /* Apache */;
+			targetProxy = AA3F34E52EBE264B00C81B81 /* PBXContainerItemProxy */;
+		};
+		AA3F34E82EBE264B00C81B81 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA3F34DF2EBE24CD00C81B81 /* PHP */;
+			targetProxy = AA3F34E72EBE264B00C81B81 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA2D860F2EBCF12F0045E836 /* Debug */ = {
@@ -172,7 +299,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -235,7 +362,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -333,6 +460,38 @@
 			};
 			name = Release;
 		};
+		AA3F34DC2EBE24B600C81B81 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AA3F34DD2EBE24B600C81B81 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		AA3F34E12EBE24CD00C81B81 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AA3F34E22EBE24CD00C81B81 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -350,6 +509,24 @@
 			buildConfigurations = (
 				AA2D86122EBCF12F0045E836 /* Debug */,
 				AA2D86132EBCF12F0045E836 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA3F34DE2EBE24B600C81B81 /* Build configuration list for PBXAggregateTarget "Apache" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA3F34DC2EBE24B600C81B81 /* Debug */,
+				AA3F34DD2EBE24B600C81B81 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA3F34E02EBE24CD00C81B81 /* Build configuration list for PBXAggregateTarget "PHP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA3F34E12EBE24CD00C81B81 /* Debug */,
+				AA3F34E22EBE24CD00C81B81 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
