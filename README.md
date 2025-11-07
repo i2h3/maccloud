@@ -31,7 +31,7 @@ MacCloud builds and bundles:
 
 When you start a server:
 
-1. Creates a unique temporary directory in `/tmp/MacCloud-<UUID>/`
+1. Creates a unique temporary directory using a UUID
 2. Extracts the Nextcloud archive
 3. Generates Apache and PHP-FPM configurations with your specified port
 4. Automatically configures Nextcloud with SQLite database
@@ -67,7 +67,7 @@ The project includes three Xcode targets:
 
 The first build will:
 - Download Apache and PHP sources (~100MB)
-- Cache them in `BuildCache/` for future builds
+- Cache them in `Cache/` for future builds
 - Compile Apache and PHP (~10-20 minutes)
 - Build the MacCloud application
 
@@ -78,14 +78,14 @@ Subsequent builds are much faster as they use the cached sources.
 Downloaded sources are cached to speed up rebuilds:
 
 ```
-BuildCache/
+Cache/
 ├── httpd-2.4.62.tar.gz
 ├── apr-1.7.5.tar.gz
 ├── apr-util-1.6.3.tar.gz
 └── php-8.4.3.tar.gz
 ```
 
-To perform a clean build, remove the `BuildCache/` directory.
+To perform a clean build, remove the `Cache/` directory.
 
 ## Usage
 

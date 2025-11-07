@@ -23,7 +23,7 @@ MacCloud uses ``NextcloudServerRepository`` to fetch Nextcloud server archives:
 Each deployment gets a unique temporary directory:
 
 ```
-/tmp/MacCloud-<UUID>/
+<temporaryDirectory>/<UUID>/
 ├── www/
 │   └── nextcloud/         # Extracted Nextcloud installation
 ├── data/                   # Nextcloud data directory

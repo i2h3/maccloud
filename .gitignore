@@ -62,5 +62,5 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 # MacCloud Build artifacts
-BuildCache/
+Cache/
 Build/

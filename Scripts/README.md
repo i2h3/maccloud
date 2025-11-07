@@ -18,7 +18,7 @@ Builds Apache HTTP Server 2.4.62 with required dependencies.
 
 **What it does:**
 1. Downloads Apache, APR, and APR-Util from apache.org
-2. Caches downloaded archives in `BuildCache/`
+2. Caches downloaded archives in `Cache/`
 3. Extracts sources to `Build/`
 4. Configures Apache with necessary modules for Nextcloud
 5. Compiles Apache
@@ -39,7 +39,7 @@ Builds PHP 8.4.3 with PHP-FPM enabled.
 
 **What it does:**
 1. Downloads PHP from php.net
-2. Caches downloaded archive in `BuildCache/`
+2. Caches downloaded archive in `Cache/`
 3. Extracts source to `Build/`
 4. Configures PHP with extensions required by Nextcloud
 5. Compiles PHP
@@ -58,10 +58,10 @@ Builds PHP 8.4.3 with PHP-FPM enabled.
 
 ## Build Cache
 
-Downloaded source archives are cached in `BuildCache/` at the project root:
+Downloaded source archives are cached in `Cache/` at the project root:
 
 ```
-BuildCache/
+Cache/
 ├── httpd-2.4.62.tar.gz
 ├── apr-1.7.5.tar.gz
 ├── apr-util-1.6.3.tar.gz
@@ -132,7 +132,7 @@ To perform a clean build:
 
 ```bash
 # Remove cache (forces re-download)
-rm -rf BuildCache/
+rm -rf Cache/
 
 # Remove build artifacts
 rm -rf Build/
