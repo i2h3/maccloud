@@ -6,9 +6,9 @@ import os
 ///
 /// Fetches Nextcloud server installation archives on demand from the Nextcloud download server and caches them locally for reuse.
 ///
-struct NextcloudRepository {
+struct NextcloudServerRepository {
     private let fileManager = FileManager.default
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "NextcloudRepository")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "NextcloudServerRepository")
     private let session = URLSession.shared
 
     ///
