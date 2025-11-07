@@ -128,14 +128,15 @@ class ServerManager: ObservableObject {
         let runDir = deploymentDir.appending(component: "run")
         
         // Get the path to bundled Apache
-        guard let apachePath = Bundle.main.path(forResource: "httpd", ofType: nil) else {
-            throw NSError(domain: "ServerManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Apache binary not found in bundle"])
+        guard let resourcesPath = Bundle.main.resourcePath else {
+            throw NSError(domain: "ServerManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
         }
         
-        let apacheModulesDir = URL(fileURLWithPath: apachePath).deletingLastPathComponent().appending(component: "modules")
+        let apachePath = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/bin/httpd")
+        let apacheModulesDir = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/modules")
         
         return """
-        ServerRoot "\(URL(fileURLWithPath: apachePath).deletingLastPathComponent().path(percentEncoded: false))"
+        ServerRoot "\(URL(fileURLWithPath: resourcesPath).appending(component: "Apache").path(percentEncoded: false))"
         Listen \(port)
         
         LoadModule mpm_prefork_module \(apacheModulesDir.path(percentEncoded: false))/mod_mpm_prefork.so
@@ -215,13 +216,15 @@ class ServerManager: ObservableObject {
         try fileManager.createDirectory(at: dataDir, withIntermediateDirectories: true)
         
         // Get path to bundled PHP
-        guard let phpPath = Bundle.main.path(forResource: "php", ofType: nil) else {
-            throw NSError(domain: "ServerManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "PHP binary not found in bundle"])
+        guard let resourcesPath = Bundle.main.resourcePath else {
+            throw NSError(domain: "ServerManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
         }
+        
+        let phpPath = URL(fileURLWithPath: resourcesPath).appending(component: "PHP/bin/php")
         
         // Run Nextcloud installation command
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: phpPath)
+        process.executableURL = phpPath
         process.currentDirectoryURL = nextcloudDir
         process.arguments = [
             "occ",
@@ -250,14 +253,15 @@ class ServerManager: ObservableObject {
     private func startPhpFpm(deploymentDir: URL) throws {
         logger.info("Starting PHP-FPM")
         
-        guard let phpFpmPath = Bundle.main.path(forResource: "php-fpm", ofType: nil) else {
-            throw NSError(domain: "ServerManager", code: 5, userInfo: [NSLocalizedDescriptionKey: "PHP-FPM binary not found in bundle"])
+        guard let resourcesPath = Bundle.main.resourcePath else {
+            throw NSError(domain: "ServerManager", code: 5, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
         }
         
+        let phpFpmPath = URL(fileURLWithPath: resourcesPath).appending(component: "PHP/sbin/php-fpm")
         let configPath = deploymentDir.appending(component: "php-fpm.conf")
         
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: phpFpmPath)
+        process.executableURL = phpFpmPath
         process.arguments = ["-y", configPath.path(percentEncoded: false), "-F"]
         
         try process.run()
@@ -267,14 +271,15 @@ class ServerManager: ObservableObject {
     private func startApache(deploymentDir: URL) throws {
         logger.info("Starting Apache")
         
-        guard let apachePath = Bundle.main.path(forResource: "httpd", ofType: nil) else {
-            throw NSError(domain: "ServerManager", code: 6, userInfo: [NSLocalizedDescriptionKey: "Apache binary not found in bundle"])
+        guard let resourcesPath = Bundle.main.resourcePath else {
+            throw NSError(domain: "ServerManager", code: 6, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
         }
         
+        let apachePath = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/bin/httpd")
         let configPath = deploymentDir.appending(component: "httpd.conf")
         
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: apachePath)
+        process.executableURL = apachePath
         process.arguments = ["-f", configPath.path(percentEncoded: false), "-D", "FOREGROUND"]
         
         try process.run()
