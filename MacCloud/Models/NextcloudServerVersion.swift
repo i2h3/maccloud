@@ -1,3 +1,5 @@
+import Foundation
+
 struct NextcloudServerVersion: Hashable, Identifiable {
     let id: String
 

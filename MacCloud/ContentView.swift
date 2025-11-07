@@ -1,11 +1,5 @@
 import SwiftUI
 
-enum ServerState {
-    case stopped
-    case starting
-    case running
-    case stopping
-}
 
 struct ContentView: View {
     @State private var serverState: ServerState
