@@ -83,7 +83,8 @@ Cache/
 ├── apr-1.7.6.tar.bz2
 ├── apr-util-1.6.3.tar.bz2
 ├── pcre2-10.47.tar.bz2
-└── php-8.4.3.tar.gz
+├── php-8.4.3.tar.gz
+└── pkg-config-0.29.2.tar.gz
 ```
 
 To perform a clean build, remove the `Cache/` directory.
