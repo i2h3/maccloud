@@ -9,9 +9,6 @@ MacCloud is a macOS application that packages Nextcloud server with Apache, PHP-
 ```
 MacCloud/
 ├── MacCloud/              # Main application source code
-│   ├── MacCloudApp.swift  # App entry point
-│   ├── ContentView.swift  # Main UI view with server controls
-│   └── Assets.xcassets/   # App assets and icons
 ├── MacCloud.xcodeproj/    # Xcode project configuration
 ├── README.md              # Project documentation
 └── LICENSE                # Project license

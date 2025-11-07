@@ -18,6 +18,11 @@
 			path = MacCloud;
 			sourceTree = "<group>";
 		};
+		AA2D86442EBDF5D20045E836 /* .github */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = .github;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +39,7 @@
 		AA2D85FD2EBCF12D0045E836 = {
 			isa = PBXGroup;
 			children = (
+				AA2D86442EBDF5D20045E836 /* .github */,
 				AA2D861A2EBCF1630045E836 /* LICENSE */,
 				AA2D861B2EBCF1630045E836 /* README.md */,
 				AA2D86082EBCF12D0045E836 /* MacCloud */,
