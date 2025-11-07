@@ -173,7 +173,7 @@ class ServerManager: ObservableObject {
         </FilesMatch>
         
         <IfModule mime_module>
-            TypesConfig /etc/apache2/mime.types
+            TypesConfig "\(URL(fileURLWithPath: resourcesPath).appending(component: "Apache/conf/mime.types").path(percentEncoded: false))"
             AddType application/x-compress .Z
             AddType application/x-gzip .gz .tgz
             AddType text/html .shtml
