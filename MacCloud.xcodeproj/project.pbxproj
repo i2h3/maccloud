@@ -117,6 +117,7 @@
 				AA2D86022EBCF12D0045E836 /* Sources */,
 				AA2D86032EBCF12D0045E836 /* Frameworks */,
 				AA2D86042EBCF12D0045E836 /* Resources */,
+				AA3F34EE2EBE335700C81B81 /* Bundle Dependencies */,
 			);
 			buildRules = (
 			);
@@ -235,6 +236,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "cd \"${SRCROOT}\"\nbash Scripts/build-php.sh\n";
+		};
+		AA3F34EE2EBE335700C81B81 /* Bundle Dependencies */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle Dependencies";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "APACHE_DIR=\"${BUILT_PRODUCTS_DIR}/Apache\"\nPHP_DIR=\"${BUILT_PRODUCTS_DIR}/PHP\"\nRESOURCES=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources\"\n\nif [ -d \"${APACHE_DIR}\" ]; then\n    echo \"Copying Apache to Resources\"\n    mkdir -p \"${RESOURCES}/Apache\"\n    cp -R \"${APACHE_DIR}\"/* \"${RESOURCES}/Apache/\"\nfi\n\nif [ -d \"${PHP_DIR}\" ]; then\n    echo \"Copying PHP to Resources\"\n    mkdir -p \"${RESOURCES}/PHP\"\n    cp -R \"${PHP_DIR}\"/* \"${RESOURCES}/PHP/\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
