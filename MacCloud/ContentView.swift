@@ -4,6 +4,7 @@ import SwiftUI
 struct ContentView: View {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "ContentView")
     private let nextcloudServerRepository = NextcloudServerRepository()
+    private let serverManager = ServerManager()
 
     @State private var error: String?
     @State private var nextcloudVersion: NextcloudServerVersion = availableNextcloudServerVersions.last ?? NextcloudServerVersion("")
@@ -39,7 +40,7 @@ struct ContentView: View {
                     case .starting:
                         Text("Nextcloud server is starting…")
                     case .running:
-                        Text("Nextcloud server is running on [http://localhost:8080](http://localhost:8080).")
+                        Text("Nextcloud server is running on [http://localhost:\(port)](http://localhost:\(port)).")
                     case .stopping:
                         Text("Nextcloud server is stopping…")
                 }
@@ -88,8 +89,9 @@ struct ContentView: View {
         Task {
             do {
                 let nextcloudServerArchive = try await nextcloudServerRepository.fetch(nextcloudVersion)
-
-                // TODO
+                
+                // Start the server with the downloaded archive
+                try await serverManager.start(nextcloudArchive: nextcloudServerArchive, port: port)
 
                 serverState = .running
             } catch {
@@ -101,10 +103,13 @@ struct ContentView: View {
 
     func stop() {
         logger.info("Stopping...")
-
-        // TODO
-
-        serverState = .stopped
+        serverState = .stopping
+        
+        Task {
+            // Stop the server
+            serverManager.stop()
+            serverState = .stopped
+        }
     }
 }
 
