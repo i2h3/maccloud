@@ -71,7 +71,17 @@ make install
 
 # Add pkg-config to PATH for PHP build
 export PATH="${PKG_CONFIG_INSTALL_DIR}/bin:${PATH}"
-export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
+
+# Set PKG_CONFIG_PATH to include macOS SDK paths
+# Get the SDK path
+SDK_PATH=$(xcrun --show-sdk-path 2>/dev/null || echo "")
+if [ -n "${SDK_PATH}" ]; then
+    export PKG_CONFIG_PATH="${SDK_PATH}/usr/lib/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
+    echo "Using SDK path: ${SDK_PATH}"
+else
+    export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
+    echo "Warning: Could not determine SDK path, using default PKG_CONFIG_PATH"
+fi
 
 # Extract PHP
 echo "Extracting PHP..."
