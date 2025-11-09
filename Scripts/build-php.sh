@@ -35,27 +35,16 @@ mkdir -p "${BUILD_DIR}"
 # Ensure Homebrew and required build deps   #
 #############################################
 
-# 1) Ensure Homebrew is available (install non-interactively if missing)
-if ! command -v brew >/dev/null 2>&1; then
-        echo "Homebrew not found. Installing Homebrew non-interactively..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
-                echo "Error: Homebrew installation failed." >&2
-                exit 1
-        }
-        # Add brew to PATH for current shell session
-        if [ -d "/opt/homebrew/bin" ]; then
-                export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}"
-        elif [ -d "/usr/local/bin" ]; then
-                export PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
-        fi
-fi
+# Gemeinsame Homebrew-Erkennung einbinden
+source "${SCRIPT_DIR}/detect-homebrew.sh"
+ensure_homebrew
 
 # 2) Make sure brew is up-to-date and deps installed
 export HOMEBREW_NO_ENV_HINTS=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 
 echo "Ensuring Homebrew dependencies are installed..."
-brew update
+"$BREW_BIN" update
 
 DEPS=(
     pkg-config
@@ -75,36 +64,35 @@ DEPS=(
 )
 
 for f in "${DEPS[@]}"; do
-    if ! brew list --versions "$f" >/dev/null 2>&1; then
+    if ! "$BREW_BIN" list --versions "$f" >/dev/null 2>&1; then
         echo "Installing $f..."
-        brew install "$f"
+        "$BREW_BIN" install "$f"
     else
         echo "$f already installed"
     fi
 done
 
-# Export PATH for brew
-BREW_PREFIX="$(brew --prefix)"
+# Export PATH for brew (ensure preferred locations first)
 export PATH="${BREW_PREFIX}/bin:${BREW_PREFIX}/sbin:${PATH}"
 
 # Resolve formula prefixes
-BZIP2_PREFIX="$(brew --prefix bzip2)"
-LIBXML2_PREFIX="$(brew --prefix libxml2)"
-OPENSSL_PREFIX="$(brew --prefix openssl@3 2>/dev/null || true)"
-SQLITE_PREFIX="$(brew --prefix sqlite)"
-ZLIB_PREFIX=""; ZLIB_PREFIX="$(brew --prefix zlib 2>/dev/null || echo "")"
-CURL_PREFIX="$(brew --prefix curl)"
-LIBZIP_PREFIX="$(brew --prefix libzip)"
-PNG_PREFIX="$(brew --prefix libpng)"
-JPEG_PREFIX="$(brew --prefix jpeg-turbo)"
-FREETYPE_PREFIX="$(brew --prefix freetype)"
-WEBP_PREFIX="$(brew --prefix webp)"
-ICU_PREFIX="$(brew --prefix icu4c)"
-ICONV_PREFIX="$(brew --prefix libiconv 2>/dev/null || true)"
+BZIP2_PREFIX="$($BREW_BIN --prefix bzip2)"
+LIBXML2_PREFIX="$($BREW_BIN --prefix libxml2)"
+OPENSSL_PREFIX="$($BREW_BIN --prefix openssl@3 2>/dev/null || true)"
+SQLITE_PREFIX="$($BREW_BIN --prefix sqlite)"
+ZLIB_PREFIX=""; ZLIB_PREFIX="$($BREW_BIN --prefix zlib 2>/dev/null || echo "")"
+CURL_PREFIX="$($BREW_BIN --prefix curl)"
+LIBZIP_PREFIX="$($BREW_BIN --prefix libzip)"
+PNG_PREFIX="$($BREW_BIN --prefix libpng)"
+JPEG_PREFIX="$($BREW_BIN --prefix jpeg-turbo)"
+FREETYPE_PREFIX="$($BREW_BIN --prefix freetype)"
+WEBP_PREFIX="$($BREW_BIN --prefix webp)"
+ICU_PREFIX="$($BREW_BIN --prefix icu4c)"
+ICONV_PREFIX="$($BREW_BIN --prefix libiconv 2>/dev/null || true)"
 
 # Some fallbacks (openssl@3 might be unavailable on older setups)
 if [ -z "${OPENSSL_PREFIX}" ] || [ ! -d "${OPENSSL_PREFIX}" ]; then
-    OPENSSL_PREFIX="$(brew --prefix openssl@1.1 2>/dev/null || true)"
+    OPENSSL_PREFIX="$($BREW_BIN --prefix openssl@1.1 2>/dev/null || true)"
 fi
 
 # 3) Compose flags to prefer Homebrew headers/libs
@@ -163,6 +151,10 @@ LD_LIB=(
     "${ICONV_PREFIX}/lib"
 )
 
+
+# Ungebundene Variablen vermeiden
+CPPFLAGS="${CPPFLAGS:-}"
+LDFLAGS="${LDFLAGS:-}"
 for inc in "${CPP_INC[@]}"; do
     [ -d "$inc" ] && CPPFLAGS="-I$inc ${CPPFLAGS}"
 done

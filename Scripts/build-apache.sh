@@ -5,7 +5,11 @@
 
 set -e
 
+# Gemeinsame Homebrew-Erkennung einbinden
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/detect-homebrew.sh"
+ensure_homebrew
+
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 CACHE_DIR="${PROJECT_ROOT}/Cache"
 APACHE_VERSION="2.4.65"
@@ -25,8 +29,13 @@ PCRE2_SOURCE="pcre2-${PCRE2_VERSION}"
 PCRE2_TARBALL="${PCRE2_SOURCE}.tar.bz2"
 PCRE2_URL="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/${PCRE2_TARBALL}"
 
+
 BUILD_DIR="${PROJECT_ROOT}/Build"
-INSTALL_DIR="${BUILD_PRODUCTS_DIR:-${BUILD_DIR}/Products}/Apache"
+# BUILD_PRODUCTS_DIR ggf. mit Default setzen, um unbound variable zu vermeiden
+if [ -z "${BUILD_PRODUCTS_DIR+x}" ]; then
+    BUILD_PRODUCTS_DIR="${BUILD_DIR}/Products"
+fi
+INSTALL_DIR="${BUILD_PRODUCTS_DIR}/Apache"
 PCRE2_INSTALL_DIR="${BUILD_DIR}/pcre2-install"
 
 echo "=================================================="
