@@ -19,3 +19,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+===============================================================================
+
+This application bundles the following third-party software:
+
+Apache HTTP Server (https://httpd.apache.org/)
+  - Licensed under the Apache License 2.0
+  - Copyright (c) The Apache Software Foundation
+
+PHP (https://www.php.net/)
+  - Licensed under the PHP License 3.01
+  - Copyright (c) The PHP Group
+
+PCRE2 (https://www.pcre.org/)
+  - Licensed under the BSD License
+  - Copyright (c) University of Cambridge
+
+The full license texts for these components are available in their respective
+source distributions and must be included when distributing this software.
+
+For detailed license information:
+- Apache: https://www.apache.org/licenses/LICENSE-2.0
+- PHP: https://www.php.net/license/3_01.txt
+- PCRE2: https://www.pcre.org/licence.txt

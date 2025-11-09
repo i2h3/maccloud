@@ -45,7 +45,7 @@ mkdir -p "${BUILD_DIR}"
 # Download and cache Apache if not already cached
 if [ ! -f "${CACHE_DIR}/${APACHE_TARBALL}" ]; then
     echo "Downloading Apache ${APACHE_VERSION} from ${APACHE_URL}"
-    curl -L -o "${CACHE_DIR}/${APACHE_TARBALL}" "${APACHE_URL}"
+    curl -sS -L -o "${CACHE_DIR}/${APACHE_TARBALL}" "${APACHE_URL}"
 else
     echo "Using cached Apache ${APACHE_VERSION}"
 fi
@@ -53,7 +53,7 @@ fi
 # Download and cache APR if not already cached
 if [ ! -f "${CACHE_DIR}/${APR_TARBALL}" ]; then
     echo "Downloading APR ${APR_VERSION} from ${APR_URL}"
-    curl -L -o "${CACHE_DIR}/${APR_TARBALL}" "${APR_URL}"
+    curl -sS -L -o "${CACHE_DIR}/${APR_TARBALL}" "${APR_URL}"
 else
     echo "Using cached APR ${APR_VERSION}"
 fi
@@ -61,7 +61,7 @@ fi
 # Download and cache APR-Util if not already cached
 if [ ! -f "${CACHE_DIR}/${APR_UTIL_TARBALL}" ]; then
     echo "Downloading APR-Util ${APR_UTIL_VERSION} from ${APR_UTIL_URL}"
-    curl -L -o "${CACHE_DIR}/${APR_UTIL_TARBALL}" "${APR_UTIL_URL}"
+    curl -sS -L -o "${CACHE_DIR}/${APR_UTIL_TARBALL}" "${APR_UTIL_URL}"
 else
     echo "Using cached APR-Util ${APR_UTIL_VERSION}"
 fi
@@ -69,7 +69,7 @@ fi
 # Download and cache PCRE2 if not already cached
 if [ ! -f "${CACHE_DIR}/${PCRE2_TARBALL}" ]; then
     echo "Downloading PCRE2 ${PCRE2_VERSION} from ${PCRE2_URL}"
-    curl -L -o "${CACHE_DIR}/${PCRE2_TARBALL}" "${PCRE2_URL}"
+    curl -sS -L -o "${CACHE_DIR}/${PCRE2_TARBALL}" "${PCRE2_URL}"
 else
     echo "Using cached PCRE2 ${PCRE2_VERSION}"
 fi
