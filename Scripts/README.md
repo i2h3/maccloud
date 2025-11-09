@@ -39,13 +39,22 @@ Builds Apache HTTP Server 2.4.65 with required dependencies.
 Builds PHP 8.4.3 with PHP-FPM enabled.
 
 **What it does:**
-1. Downloads PHP from php.net and pkg-config from freedesktop.org
-2. Caches downloaded archives in `Cache/`
-3. Builds pkg-config (required dependency for PHP)
+1. Checks for Homebrew and installs required dependencies
+2. Downloads PHP from php.net
+3. Caches downloaded archives in `Cache/`
 4. Extracts PHP source to `Build/`
-5. Configures PHP with extensions required by Nextcloud
+5. Configures PHP with extensions required by Nextcloud using Homebrew libraries
 6. Compiles PHP
 7. Installs to the build products directory
+
+**Homebrew dependencies:**
+- pkg-config - Build tool for compiling
+- libxml2 - XML processing library
+- openssl@3 - Encryption and SSL/TLS
+- sqlite - SQLite database library
+- bzip2 - BZip2 compression
+- icu4c - International Components for Unicode
+- oniguruma - Regular expression library
 
 **Required extensions:**
 - mbstring - Multi-byte string support
@@ -68,8 +77,7 @@ Cache/
 ├── apr-1.7.6.tar.bz2
 ├── apr-util-1.6.3.tar.bz2
 ├── pcre2-10.47.tar.bz2
-├── php-8.4.3.tar.gz
-└── pkg-config-0.29.2.tar.gz
+└── php-8.4.3.tar.gz
 ```
 
 This cache:
@@ -126,9 +134,18 @@ Build time varies based on:
 ## Requirements
 
 - macOS with Xcode Command Line Tools
+- Homebrew package manager (https://brew.sh)
 - Internet connection (for initial download)
 - ~500MB free disk space for sources
 - ~200MB free disk space for build products
+
+### Installing Homebrew
+
+If Homebrew is not installed, run:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
 ## Cleaning
 
