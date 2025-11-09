@@ -164,7 +164,7 @@ cd "${BUILD_DIR}/${PHP_SOURCE}"
     --enable-pdo \
     --with-openssl \
     --with-zlib \
-    --with-bz2 \
+    --with-bz2="${SDKROOT:-/usr}" \
     --with-iconv \
     --with-libxml-dir="${SDKROOT:-/usr}"
 
