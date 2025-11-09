@@ -31,20 +31,21 @@ PCRE2_URL="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2
 
 
 BUILD_DIR="${PROJECT_ROOT}/Build"
-# BUILD_PRODUCTS_DIR ggf. mit Default setzen, um unbound variable zu vermeiden
-if [ -z "${BUILD_PRODUCTS_DIR+x}" ]; then
-    BUILD_PRODUCTS_DIR="${BUILD_DIR}/Products"
+
+if [ -z "${BUILT_PRODUCTS_DIR+x}" ]; then
+    BUILT_PRODUCTS_DIR="${BUILD_DIR}/Products"
 fi
-INSTALL_DIR="${BUILD_PRODUCTS_DIR}/Apache"
+
+INSTALL_DIR="${BUILT_PRODUCTS_DIR}/Apache"
 PCRE2_INSTALL_DIR="${BUILD_DIR}/pcre2-install"
 
 echo "=================================================="
 echo "Building Apache HTTP Server ${APACHE_VERSION}"
 echo "=================================================="
 
-# Ensure BUILD_PRODUCTS_DIR has a value
-if [ -z "${BUILD_PRODUCTS_DIR}" ]; then
-    echo "Note: BUILD_PRODUCTS_DIR not set, using default: ${BUILD_DIR}/Products"
+# Ensure BUILT_PRODUCTS_DIR has a value
+if [ -z "${BUILT_PRODUCTS_DIR}" ]; then
+    echo "Note: BUILT_PRODUCTS_DIR not set, using default: ${BUILD_DIR}/Products"
 fi
 
 # Create cache directory if it doesn't exist

@@ -253,7 +253,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "APACHE_DIR=\"${BUILT_PRODUCTS_DIR}/Apache\"\nPHP_DIR=\"${BUILT_PRODUCTS_DIR}/PHP\"\nRESOURCES=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources\"\n\nif [ -d \"${APACHE_DIR}\" ]; then\n    echo \"Copying Apache to Resources\"\n    mkdir -p \"${RESOURCES}/Apache\"\n    cp -R \"${APACHE_DIR}\"/* \"${RESOURCES}/Apache/\"\nfi\n\nif [ -d \"${PHP_DIR}\" ]; then\n    echo \"Copying PHP to Resources\"\n    mkdir -p \"${RESOURCES}/PHP\"\n    cp -R \"${PHP_DIR}\"/* \"${RESOURCES}/PHP/\"\nfi\n";
+			shellScript = "APACHE_DIR=\"${BUILT_PRODUCTS_DIR}/Apache\"\nPHP_DIR=\"${BUILT_PRODUCTS_DIR}/PHP\"\nRESOURCES=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources\"\n\nif [ -d \"${APACHE_DIR}\" ]; then\n    echo \"Copying Apache from ${APACHE_DIR} to ${RESOURCES}\"\n    mkdir -p \"${RESOURCES}/Apache\"\n    cp -R \"${APACHE_DIR}\"/* \"${RESOURCES}/Apache/\"\nfi\n\nif [ -d \"${PHP_DIR}\" ]; then\n    echo \"Copying PHP from ${PHP_DIR} to ${RESOURCES}\"\n    mkdir -p \"${RESOURCES}/PHP\"\n    cp -R \"${PHP_DIR}\"/* \"${RESOURCES}/PHP/\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

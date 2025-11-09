@@ -16,15 +16,15 @@ PHP_TARBALL="${PHP_SOURCE}.tar.gz"
 PHP_URL="https://www.php.net/distributions/${PHP_TARBALL}"
 
 BUILD_DIR="${PROJECT_ROOT}/Build"
-INSTALL_DIR="${BUILD_PRODUCTS_DIR:-${BUILD_DIR}/Products}/PHP"
+INSTALL_DIR="${BUILT_PRODUCTS_DIR:-${BUILD_DIR}/Products}/PHP"
 
 echo "=================================================="
 echo "Building PHP ${PHP_VERSION} (Homebrew deps)"
 echo "=================================================="
 
-# Ensure BUILD_PRODUCTS_DIR has a value
-if [ -z "${BUILD_PRODUCTS_DIR}" ]; then
-    echo "Note: BUILD_PRODUCTS_DIR not set, using default: ${BUILD_DIR}/Products"
+# Ensure BUILT_PRODUCTS_DIR has a value
+if [ -z "${BUILT_PRODUCTS_DIR}" ]; then
+    echo "Note: BUILT_PRODUCTS_DIR not set, using default: ${BUILD_DIR}/Products"
 fi
 
 # Create cache directory if it doesn't exist
