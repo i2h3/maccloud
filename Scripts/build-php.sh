@@ -77,7 +77,12 @@ export PATH="${PKG_CONFIG_INSTALL_DIR}/bin:${PATH}"
 SDK_PATH=$(xcrun --show-sdk-path 2>/dev/null || echo "")
 if [ -n "${SDK_PATH}" ]; then
     export PKG_CONFIG_PATH="${SDK_PATH}/usr/lib/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
+    # Also set CFLAGS and LDFLAGS to include SDK paths for direct compilation/linking
+    export CFLAGS="-I${SDK_PATH}/usr/include"
+    export CPPFLAGS="-I${SDK_PATH}/usr/include"
+    export LDFLAGS="-L${SDK_PATH}/usr/lib"
     echo "Using SDK path: ${SDK_PATH}"
+    echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
 else
     export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
     echo "Warning: Could not determine SDK path, using default PKG_CONFIG_PATH"
