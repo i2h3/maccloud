@@ -88,17 +88,41 @@ if [ -n "${SDK_PATH}" ]; then
     # pkg-config inside the SDK might not provide libxml-2.0.pc. Include SDK pkgconfig path anyway.
     export PKG_CONFIG_PATH="${SDKROOT}/usr/lib/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 
-    # Tell PHP's configure directly where to find libxml (avoid pkg-config if .pc is missing)
+    # Set environment variables for all common SDK libraries that PHP extensions need
+    # This avoids the need to rely on pkg-config for each library individually
+    
+    # libxml2 (required for XML support)
     export LIBXML_CFLAGS="-I${SDKROOT}/usr/include/libxml2 -isysroot ${SDKROOT}"
     export LIBXML_LIBS="-L${SDKROOT}/usr/lib -lxml2 -isysroot ${SDKROOT}"
     
-    # Tell PHP's configure where to find OpenSSL in the SDK
+    # OpenSSL (required for SSL/TLS support)
     export OPENSSL_CFLAGS="-I${SDKROOT}/usr/include -isysroot ${SDKROOT}"
     export OPENSSL_LIBS="-L${SDKROOT}/usr/lib -lssl -lcrypto -isysroot ${SDKROOT}"
+    
+    # SQLite3 (required for SQLite database support)
+    export SQLITE_CFLAGS="-I${SDKROOT}/usr/include -isysroot ${SDKROOT}"
+    export SQLITE_LIBS="-L${SDKROOT}/usr/lib -lsqlite3 -isysroot ${SDKROOT}"
+    
+    # zlib (required for compression support)
+    export ZLIB_CFLAGS="-I${SDKROOT}/usr/include -isysroot ${SDKROOT}"
+    export ZLIB_LIBS="-L${SDKROOT}/usr/lib -lz -isysroot ${SDKROOT}"
+    
+    # bz2 (required for bzip2 compression)
+    export BZ2_CFLAGS="-I${SDKROOT}/usr/include -isysroot ${SDKROOT}"
+    export BZ2_LIBS="-L${SDKROOT}/usr/lib -lbz2 -isysroot ${SDKROOT}"
+    
+    # curl (required for HTTP client support)
+    export CURL_CFLAGS="-I${SDKROOT}/usr/include -isysroot ${SDKROOT}"
+    export CURL_LIBS="-L${SDKROOT}/usr/lib -lcurl -isysroot ${SDKROOT}"
+    
+    # iconv (required for character encoding conversion)
+    export ICONV_CFLAGS="-I${SDKROOT}/usr/include -isysroot ${SDKROOT}"
+    export ICONV_LIBS="-L${SDKROOT}/usr/lib -liconv -isysroot ${SDKROOT}"
 
     echo "CPPFLAGS: ${CPPFLAGS}"
     echo "LDFLAGS: ${LDFLAGS}"
     echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
+    echo "SDK library environment variables configured for: libxml2, openssl, sqlite3, zlib, bz2, curl, iconv"
 else
     echo "Warning: Could not determine SDK path. Falling back to default paths."
     export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
