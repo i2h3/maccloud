@@ -2,6 +2,7 @@
 
 # Build script for PHP-FPM 8.4
 # This script downloads, caches, and builds PHP for inclusion in the MacCloud app bundle
+# Updated: set up macOS SDK libxml2 detection so configure finds libxml-2.0 without Homebrew
 
 set -e
 
@@ -72,20 +73,31 @@ make install
 # Add pkg-config to PATH for PHP build
 export PATH="${PKG_CONFIG_INSTALL_DIR}/bin:${PATH}"
 
-# Set PKG_CONFIG_PATH to include macOS SDK paths
-# Get the SDK path
+# Get the SDK path (if available) and configure flags so PHP finds macOS SDK libxml2
 SDK_PATH=$(xcrun --show-sdk-path 2>/dev/null || echo "")
 if [ -n "${SDK_PATH}" ]; then
-    export PKG_CONFIG_PATH="${SDK_PATH}/usr/lib/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
-    # Also set CFLAGS and LDFLAGS to include SDK paths for direct compilation/linking
-    export CFLAGS="-I${SDK_PATH}/usr/include"
-    export CPPFLAGS="-I${SDK_PATH}/usr/include"
-    export LDFLAGS="-L${SDK_PATH}/usr/lib"
     echo "Using SDK path: ${SDK_PATH}"
+
+    # Make compiler and linker use the SDK (helps find system headers/libs that aren't in /usr/include anymore)
+    # Explicitly include the libxml2 headers inside the SDK
+    export SDKROOT="${SDK_PATH}"
+    export CPPFLAGS="-I${SDKROOT}/usr/include/libxml2 -isysroot ${SDKROOT} ${CPPFLAGS:-}"
+    export CFLAGS="${CPPFLAGS}"
+    export LDFLAGS="-L${SDKROOT}/usr/lib -isysroot ${SDKROOT} ${LDFLAGS:-}"
+
+    # pkg-config inside the SDK might not provide libxml-2.0.pc. Include SDK pkgconfig path anyway.
+    export PKG_CONFIG_PATH="${SDKROOT}/usr/lib/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+
+    # Tell PHP's configure directly where to find libxml (avoid pkg-config if .pc is missing)
+    export LIBXML_CFLAGS="-I${SDKROOT}/usr/include/libxml2 -isysroot ${SDKROOT}"
+    export LIBXML_LIBS="-L${SDKROOT}/usr/lib -lxml2 -isysroot ${SDKROOT}"
+
+    echo "CPPFLAGS: ${CPPFLAGS}"
+    echo "LDFLAGS: ${LDFLAGS}"
     echo "PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
 else
-    export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
-    echo "Warning: Could not determine SDK path, using default PKG_CONFIG_PATH"
+    echo "Warning: Could not determine SDK path. Falling back to default paths."
+    export PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 fi
 
 # Extract PHP
@@ -100,6 +112,8 @@ tar xzf "${CACHE_DIR}/${PHP_TARBALL}"
 echo "Configuring PHP..."
 cd "${BUILD_DIR}/${PHP_SOURCE}"
 
+# Add --with-libxml-dir pointing at the SDK /usr (this plus LIBXML_CFLAGS/LIBXML_LIBS above
+# avoids needing a libxml-2.0 .pc file or xml2-config binary)
 ./configure \
     --prefix="${INSTALL_DIR}" \
     --enable-fpm \
@@ -123,7 +137,8 @@ cd "${BUILD_DIR}/${PHP_SOURCE}"
     --with-openssl \
     --with-zlib \
     --with-bz2 \
-    --with-iconv
+    --with-iconv \
+    --with-libxml-dir="${SDKROOT:-/usr}"
 
 echo "Building PHP (this may take several minutes)..."
 make -j$(sysctl -n hw.ncpu)
