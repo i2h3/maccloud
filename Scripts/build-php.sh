@@ -38,7 +38,7 @@ mkdir -p "${BUILD_DIR}"
 # Download and cache PHP if not already cached
 if [ ! -f "${CACHE_DIR}/${PHP_TARBALL}" ]; then
     echo "Downloading PHP ${PHP_VERSION} from ${PHP_URL}"
-    curl -L -o "${CACHE_DIR}/${PHP_TARBALL}" "${PHP_URL}"
+    curl -sS -L -o "${CACHE_DIR}/${PHP_TARBALL}" "${PHP_URL}"
 else
     echo "Using cached PHP ${PHP_VERSION}"
 fi
@@ -46,7 +46,7 @@ fi
 # Download and cache pkg-config if not already cached
 if [ ! -f "${CACHE_DIR}/${PKG_CONFIG_TARBALL}" ]; then
     echo "Downloading pkg-config ${PKG_CONFIG_VERSION} from ${PKG_CONFIG_URL}"
-    curl -L -o "${CACHE_DIR}/${PKG_CONFIG_TARBALL}" "${PKG_CONFIG_URL}"
+    curl -sS -L -o "${CACHE_DIR}/${PKG_CONFIG_TARBALL}" "${PKG_CONFIG_URL}"
 else
     echo "Using cached pkg-config ${PKG_CONFIG_VERSION}"
 fi
@@ -91,6 +91,10 @@ if [ -n "${SDK_PATH}" ]; then
     # Tell PHP's configure directly where to find libxml (avoid pkg-config if .pc is missing)
     export LIBXML_CFLAGS="-I${SDKROOT}/usr/include/libxml2 -isysroot ${SDKROOT}"
     export LIBXML_LIBS="-L${SDKROOT}/usr/lib -lxml2 -isysroot ${SDKROOT}"
+    
+    # Tell PHP's configure where to find OpenSSL in the SDK
+    export OPENSSL_CFLAGS="-I${SDKROOT}/usr/include -isysroot ${SDKROOT}"
+    export OPENSSL_LIBS="-L${SDKROOT}/usr/lib -lssl -lcrypto -isysroot ${SDKROOT}"
 
     echo "CPPFLAGS: ${CPPFLAGS}"
     echo "LDFLAGS: ${LDFLAGS}"
