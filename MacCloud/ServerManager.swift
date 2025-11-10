@@ -174,36 +174,24 @@ actor ServerManager: ObservableObject {
         let logsDir = deploymentDir.appending(component: "logs")
         let runDir = deploymentDir.appending(component: "run")
         
-        // Get the path to bundled Apache
-        guard let resourcesPath = Bundle.main.resourcePath else {
-            throw NSError(domain: "ServerManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
-        }
-        
-        let apachePath = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/bin/httpd")
-        let apacheModulesDir = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/modules")
-        let mimeTypesPath = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/conf/mime.types")
-        
-        // Build TypesConfig directive - only include if mime.types exists
-        let typesConfigLine: String
-        if fileManager.fileExists(atPath: mimeTypesPath.path(percentEncoded: false)) {
-            typesConfigLine = "TypesConfig \"\(mimeTypesPath.path(percentEncoded: false))\""
-        } else {
-            logger.warning("mime.types not found at expected location, skipping TypesConfig directive")
-            typesConfigLine = "# TypesConfig not set - mime.types file not found"
-        }
+        // Locate Homebrew Apache installation
+        let apacheRoot = findHomebrewApacheRoot()
+        let apacheModulesDir = "\(apacheRoot)/lib/httpd/modules"
+        let mimeTypesPath = "\(apacheRoot)/etc/httpd/mime.types"
         
         return """
-        ServerRoot "\(URL(fileURLWithPath: resourcesPath).appending(component: "Apache").path(percentEncoded: false))"
+        ServerRoot "\(apacheRoot)"
         Listen \(port)
         
-        LoadModule mpm_prefork_module \(apacheModulesDir.path(percentEncoded: false))/mod_mpm_prefork.so
-        LoadModule authz_core_module \(apacheModulesDir.path(percentEncoded: false))/mod_authz_core.so
-        LoadModule dir_module \(apacheModulesDir.path(percentEncoded: false))/mod_dir.so
-        LoadModule env_module \(apacheModulesDir.path(percentEncoded: false))/mod_env.so
-        LoadModule mime_module \(apacheModulesDir.path(percentEncoded: false))/mod_mime.so
-        LoadModule rewrite_module \(apacheModulesDir.path(percentEncoded: false))/mod_rewrite.so
-        LoadModule proxy_module \(apacheModulesDir.path(percentEncoded: false))/mod_proxy.so
-        LoadModule proxy_fcgi_module \(apacheModulesDir.path(percentEncoded: false))/mod_proxy_fcgi.so
+        LoadModule mpm_prefork_module \(apacheModulesDir)/mod_mpm_prefork.so
+        LoadModule authz_core_module \(apacheModulesDir)/mod_authz_core.so
+        LoadModule dir_module \(apacheModulesDir)/mod_dir.so
+        LoadModule env_module \(apacheModulesDir)/mod_env.so
+        LoadModule mime_module \(apacheModulesDir)/mod_mime.so
+        LoadModule rewrite_module \(apacheModulesDir)/mod_rewrite.so
+        LoadModule proxy_module \(apacheModulesDir)/mod_proxy.so
+        LoadModule proxy_fcgi_module \(apacheModulesDir)/mod_proxy_fcgi.so
+        LoadModule unixd_module \(apacheModulesDir)/mod_unixd.so
         
         ServerName localhost
         PidFile "\(runDir.path(percentEncoded: false))/httpd.pid"
@@ -230,13 +218,40 @@ actor ServerManager: ObservableObject {
         </FilesMatch>
         
         <IfModule mime_module>
-            \(typesConfigLine)
+            TypesConfig "\(mimeTypesPath)"
             AddType application/x-compress .Z
             AddType application/x-gzip .gz .tgz
             AddType application/x-httpd-php .php
             AddType text/html .html .htm
         </IfModule>
         """
+    }
+    
+    private func findHomebrewApacheRoot() -> String {
+        // Try common Homebrew locations for Apache
+        let homebrewPrefixes = [
+            "/opt/homebrew",  // Apple Silicon
+            "/usr/local"      // Intel
+        ]
+        
+        for prefix in homebrewPrefixes {
+            let cellarPath = "\(prefix)/Cellar/httpd"
+            if fileManager.fileExists(atPath: cellarPath) {
+                // Find the latest version directory
+                if let versions = try? fileManager.contentsOfDirectory(atPath: cellarPath).sorted().last {
+                    return "\(cellarPath)/\(versions)"
+                }
+            }
+            
+            // Also check opt symlink
+            let optPath = "\(prefix)/opt/httpd"
+            if fileManager.fileExists(atPath: optPath) {
+                return optPath
+            }
+        }
+        
+        // Fallback to /usr/local if nothing found
+        return "/usr/local"
     }
     
     private func generatePhpFpmConfig(deploymentDir: URL) throws -> String {
@@ -272,16 +287,12 @@ actor ServerManager: ObservableObject {
         // Create data directory
         try fileManager.createDirectory(at: dataDir, withIntermediateDirectories: true)
         
-        // Get path to bundled PHP
-        guard let resourcesPath = Bundle.main.resourcePath else {
-            throw NSError(domain: "ServerManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
-        }
-        
-        let phpPath = URL(fileURLWithPath: resourcesPath).appending(component: "PHP/bin/php")
+        // Locate Homebrew PHP
+        let phpPath = findHomebrewPhp()
         
         // Run Nextcloud installation command
         let process = Process()
-        process.executableURL = phpPath
+        process.executableURL = URL(fileURLWithPath: phpPath)
         process.currentDirectoryURL = nextcloudDir
         process.arguments = [
             "occ",
@@ -307,39 +318,84 @@ actor ServerManager: ObservableObject {
         }
     }
     
+    private func findHomebrewPhp() -> String {
+        // Try common Homebrew locations for PHP
+        let homebrewPrefixes = [
+            "/opt/homebrew/bin/php",  // Apple Silicon
+            "/usr/local/bin/php"      // Intel
+        ]
+        
+        for phpPath in homebrewPrefixes {
+            if fileManager.fileExists(atPath: phpPath) {
+                return phpPath
+            }
+        }
+        
+        // Fallback
+        return "/usr/bin/php"
+    }
+    
     private func startPhpFpm(deploymentDir: URL) throws {
         logger.info("Starting PHP-FPM")
         
-        guard let resourcesPath = Bundle.main.resourcePath else {
-            throw NSError(domain: "ServerManager", code: 5, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
-        }
-        
-        let phpFpmPath = URL(fileURLWithPath: resourcesPath).appending(component: "PHP/sbin/php-fpm")
+        // Locate Homebrew PHP-FPM
+        let phpFpmPath = findHomebrewPhpFpm()
         let configPath = deploymentDir.appending(component: "php-fpm.conf")
         
         let process = Process()
-        process.executableURL = phpFpmPath
+        process.executableURL = URL(fileURLWithPath: phpFpmPath)
         process.arguments = ["-y", configPath.path(percentEncoded: false), "-F"]
         
         try process.run()
         phpFpmProcess = process
     }
     
+    private func findHomebrewPhpFpm() -> String {
+        // Try common Homebrew locations for PHP-FPM
+        let homebrewPrefixes = [
+            "/opt/homebrew/sbin/php-fpm",  // Apple Silicon
+            "/usr/local/sbin/php-fpm"      // Intel
+        ]
+        
+        for phpFpmPath in homebrewPrefixes {
+            if fileManager.fileExists(atPath: phpFpmPath) {
+                return phpFpmPath
+            }
+        }
+        
+        // Fallback
+        return "/usr/sbin/php-fpm"
+    }
+    
     private func startApache(deploymentDir: URL) throws {
         logger.info("Starting Apache")
         
-        guard let resourcesPath = Bundle.main.resourcePath else {
-            throw NSError(domain: "ServerManager", code: 6, userInfo: [NSLocalizedDescriptionKey: "Resources path not found in bundle"])
-        }
-        
-        let apachePath = URL(fileURLWithPath: resourcesPath).appending(component: "Apache/bin/httpd")
+        // Locate Homebrew Apache (httpd)
+        let apachePath = findHomebrewApache()
         let configPath = deploymentDir.appending(component: "httpd.conf")
         
         let process = Process()
-        process.executableURL = apachePath
+        process.executableURL = URL(fileURLWithPath: apachePath)
         process.arguments = ["-f", configPath.path(percentEncoded: false), "-D", "FOREGROUND"]
         
         try process.run()
         apacheProcess = process
+    }
+    
+    private func findHomebrewApache() -> String {
+        // Try common Homebrew locations for Apache (httpd)
+        let homebrewPrefixes = [
+            "/opt/homebrew/bin/httpd",  // Apple Silicon
+            "/usr/local/bin/httpd"      // Intel
+        ]
+        
+        for apachePath in homebrewPrefixes {
+            if fileManager.fileExists(atPath: apachePath) {
+                return apachePath
+            }
+        }
+        
+        // Fallback
+        return "/usr/sbin/httpd"
     }
 }
