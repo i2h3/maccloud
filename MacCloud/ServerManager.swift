@@ -8,8 +8,7 @@ import os
 /// This class handles creating ephemeral deployment directories, generating configuration files,
 /// and starting/stopping Apache and PHP-FPM processes.
 ///
-@MainActor
-class ServerManager: ObservableObject {
+actor ServerManager: ObservableObject {
     private let fileManager = FileManager.default
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "ServerManager")
     
