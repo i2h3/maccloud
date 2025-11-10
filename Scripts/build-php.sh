@@ -1,50 +1,29 @@
 #!/bin/bash
 
-# Build script for PHP-FPM 8.4 (Homebrew-based)
-# This script downloads, caches, and builds PHP for inclusion in the MacCloud app bundle.
-# It uses Homebrew-installed libraries (not the macOS SDK) and installs missing
-# build dependencies automatically.
-
 set -e
 
+# Locate self.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-CACHE_DIR="${PROJECT_ROOT}/Cache"
+
+# Set up common environment.
+source "${SCRIPT_DIR}/setup-environment.sh"
+
 PHP_VERSION="8.4.3"
 PHP_SOURCE="php-${PHP_VERSION}"
 PHP_TARBALL="${PHP_SOURCE}.tar.gz"
 PHP_URL="https://www.php.net/distributions/${PHP_TARBALL}"
 
-BUILD_DIR="${PROJECT_ROOT}/Build"
-INSTALL_DIR="${BUILT_PRODUCTS_DIR:-${BUILD_DIR}/Products}/PHP"
+INSTALL_DIR="${BUILT_PRODUCTS_DIR}/PHP"
+export INSTALL_DIR
+echo "Resolved INSTALL_DIR: ${INSTALL_DIR}"
+
+DSTROOT="${INSTALL_DIR}"
+export DSTROOT
+echo "Resolved DSTROOT: ${DSTROOT}"
 
 echo "=================================================="
-echo "Building PHP ${PHP_VERSION} (Homebrew deps)"
+echo "Building PHP ${PHP_VERSION}"
 echo "=================================================="
-
-# Ensure BUILT_PRODUCTS_DIR has a value
-if [ -z "${BUILT_PRODUCTS_DIR}" ]; then
-    echo "Note: BUILT_PRODUCTS_DIR not set, using default: ${BUILD_DIR}/Products"
-fi
-
-# Create cache directory if it doesn't exist
-mkdir -p "${CACHE_DIR}"
-mkdir -p "${BUILD_DIR}"
-
-#############################################
-# Ensure Homebrew and required build deps   #
-#############################################
-
-# Gemeinsame Homebrew-Erkennung einbinden
-source "${SCRIPT_DIR}/detect-homebrew.sh"
-ensure_homebrew
-
-# 2) Make sure brew is up-to-date and deps installed
-export HOMEBREW_NO_ENV_HINTS=1
-export HOMEBREW_NO_INSTALL_CLEANUP=1
-
-echo "Ensuring Homebrew dependencies are installed..."
-"$BREW_BIN" update
 
 DEPS=(
     pkg-config
@@ -115,6 +94,7 @@ for p in \
         PKG_CONFIG_PATH="$p:${PKG_CONFIG_PATH}"
     fi
 done
+
 export PKG_CONFIG_PATH
 
 CPP_INC=(
@@ -152,9 +132,10 @@ LD_LIB=(
 )
 
 
-# Ungebundene Variablen vermeiden
+# Avoid onbound variables.
 CPPFLAGS="${CPPFLAGS:-}"
 LDFLAGS="${LDFLAGS:-}"
+
 for inc in "${CPP_INC[@]}"; do
     [ -d "$inc" ] && CPPFLAGS="-I$inc ${CPPFLAGS}"
 done
@@ -181,14 +162,23 @@ echo "Final CPPFLAGS: ${CPPFLAGS}"
 echo "Final LDFLAGS: ${LDFLAGS}"
 echo "Final PKG_CONFIG_PATH: ${PKG_CONFIG_PATH}"
 
-# (Removed) macOS SDK probing — we intentionally rely on Homebrew libraries
+# Download PHP, if necessary.
+
+if [ ! -f "${CACHE_DIR}/${PHP_TARBALL}" ]; then
+    echo "Downloading PHP ${PHP_VERSION} from ${PHP_URL}"
+    curl -sS -L -o "${CACHE_DIR}/${PHP_TARBALL}" "${PHP_URL}"
+else
+    echo "Using cached PHP ${PHP_VERSION}"
+fi
 
 # Extract PHP
 echo "Extracting PHP..."
 cd "${BUILD_DIR}"
+
 if [ -d "${PHP_SOURCE}" ]; then
     rm -rf "${PHP_SOURCE}"
 fi
+
 tar xzf "${CACHE_DIR}/${PHP_TARBALL}"
 
 # Configure and build PHP

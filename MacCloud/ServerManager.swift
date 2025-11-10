@@ -105,8 +105,8 @@ class ServerManager: ObservableObject {
     }
     
     private func extractNextcloud(archive: URL, to destination: URL) async throws {
-        logger.info("Extracting Nextcloud archive")
-        
+        logger.info("Extracting Nextcloud archive at \(archive.path(percentEncoded: false)) to \(destination.path(percentEncoded: false))")
+
         let webRoot = destination.appending(component: "www")
         try fileManager.createDirectory(at: webRoot, withIntermediateDirectories: true)
         
