@@ -1,17 +1,13 @@
 #!/bin/bash
 
-# Build script for Apache HTTP Server 2.4
-# This script downloads, caches, and builds Apache for inclusion in the MacCloud app bundle
-
 set -e
 
-# Gemeinsame Homebrew-Erkennung einbinden
+# Locate self.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/detect-homebrew.sh"
-ensure_homebrew
 
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-CACHE_DIR="${PROJECT_ROOT}/Cache"
+# Set up common environment.
+source "${SCRIPT_DIR}/setup-environment.sh"
+
 APACHE_VERSION="2.4.65"
 APACHE_SOURCE="httpd-${APACHE_VERSION}"
 APACHE_TARBALL="${APACHE_SOURCE}.tar.bz2"
@@ -29,28 +25,14 @@ PCRE2_SOURCE="pcre2-${PCRE2_VERSION}"
 PCRE2_TARBALL="${PCRE2_SOURCE}.tar.bz2"
 PCRE2_URL="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VERSION}/${PCRE2_TARBALL}"
 
-
-BUILD_DIR="${PROJECT_ROOT}/Build"
-
-if [ -z "${BUILT_PRODUCTS_DIR+x}" ]; then
-    BUILT_PRODUCTS_DIR="${BUILD_DIR}/Products"
-fi
-
 INSTALL_DIR="${BUILT_PRODUCTS_DIR}/Apache"
+echo "Resolved INSTALL_DIR: ${INSTALL_DIR}"
+
 PCRE2_INSTALL_DIR="${BUILD_DIR}/pcre2-install"
 
 echo "=================================================="
 echo "Building Apache HTTP Server ${APACHE_VERSION}"
 echo "=================================================="
-
-# Ensure BUILT_PRODUCTS_DIR has a value
-if [ -z "${BUILT_PRODUCTS_DIR}" ]; then
-    echo "Note: BUILT_PRODUCTS_DIR not set, using default: ${BUILD_DIR}/Products"
-fi
-
-# Create cache directory if it doesn't exist
-mkdir -p "${CACHE_DIR}"
-mkdir -p "${BUILD_DIR}"
 
 # Download and cache Apache if not already cached
 if [ ! -f "${CACHE_DIR}/${APACHE_TARBALL}" ]; then
