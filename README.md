@@ -1,17 +1,24 @@
 # MacCloud
 
 [Nextcloud server](https://nextcloud.com) as a native macOS app for automated tests.
-This packages Apache, PHP-FPM and Nextcloud server with SQLite into a macOS app bundle.
-The intended use case are deployments on ephemeral enviroments like CI runners.
+This deploys Nextcloud server with Apache HTTP Server, PHP-FPM and SQLite to temporary directories.
+The intended use case are deployments on ephemeral environments like CI runners.
 
 ## Features
 
-- **Self-contained**: Bundles Apache HTTP Server and PHP-FPM compiled from source.
+- **Simple setup**: Uses Homebrew-provided Apache and PHP-FPM (no compilation required).
 - **Ephemeral**: Each Nextcloud server deployment is temporary and its data removed when stopped.
 - **Multiple versions**: Select from several Nextcloud server versions.
 - **Configurable**: Choose which port to run Nextcloud server on.
 - **Provisioning**: Nextcloud is auto-configured with "admin/admin" credentials by default.
-- **No dependencies**: SQLite database requires no separate database server.
+- **No database server**: SQLite database requires no separate database server.
+
+## Requirements
+
+- macOS with Xcode Command Line Tools
+- [Homebrew](https://brew.sh) package manager
+- Apache HTTP Server: `brew install httpd`
+- PHP with FPM: `brew install php`
 
 ## Documentation
 

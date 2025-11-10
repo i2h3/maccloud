@@ -4,22 +4,27 @@ Deploy ephemeral Nextcloud servers locally for testing.
 
 ## Overview
 
-MacCloud provides Apache HTTP Server, PHP-FPM, and Nextcloud server with SQLite in form of a macOS application bundle.
+MacCloud deploys Nextcloud servers with Apache HTTP Server, PHP-FPM, and SQLite to temporary directories.
 This enables quick deployment of ephemeral Nextcloud servers for automated testing on CI runners and local development environments.
 Data is maintained only for the lifetime of the deployment and removed when stopped.
 
+## Requirements
+
+Before using MacCloud, install the required dependencies using [Homebrew](https://brew.sh):
+
+```bash
+brew install httpd php
+```
+
 ## How To Build
 
-1. Check out this project.
-2. Run `./Script/build-apache.sh`. This will download build Apache from source and place it in the project directory.
-3. Run `./Script/build-php.sh`. This will download build PHP from source and place it in the project directory.
-4. Open the Xcode project to build and run the app. The prebuilt dependencies will be copied into the app bundle. That's it!
+1. Check out this project
+2. Open the Xcode project
+3. Build and run the app
 
-Decoupling the build of Apache and PHP simplifies and speeds up the build process a lot.
-Keeping things simple and separate from Xcode avoids unnecessary complexity and time wasted.
-When working on the actual app, you usually don't want to rebuild those heavy dependencies all the time.
+That's it! MacCloud uses the Apache and PHP-FPM installed by Homebrew on your system.
 
-Nextcloud server is not included but loaded on demand because users are abled to select a specific version and shipping every possible one would bloat up the app bundle significantly.
+Nextcloud server is not included in the app bundle but loaded on demand because users can select a specific version, and shipping every possible one would bloat up the app significantly.
 
 ## How It Works
 
