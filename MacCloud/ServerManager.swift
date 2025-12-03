@@ -28,14 +28,14 @@ actor ServerManager: ObservableObject {
     /// - Throws: An error if the server fails to start.
     ///
     func start(nextcloudArchive: URL, port: UInt) async throws {
-        logger.info("Starting Nextcloud server on port \(port)")
-        
+        logger.info("Starting Nextcloud server on port \(port)...")
+
         // Create temporary directory for this deployment
         let tempDir = try createDeploymentDirectory()
         self.deploymentDirectory = tempDir
         
-        logger.info("Deployment directory: \(tempDir.path(percentEncoded: false))")
-        
+        logger.info("Created deployment directory: \(tempDir.path(percentEncoded: false))")
+
         // Extract Nextcloud archive
         try await extractNextcloud(archive: nextcloudArchive, to: tempDir)
         
@@ -48,10 +48,10 @@ actor ServerManager: ObservableObject {
         try phpFpmConfig.write(to: tempDir.appending(component: "php-fpm.conf"), atomically: true, encoding: .utf8)
         
         // Auto-configure Nextcloud
-        try await configureNextcloud(deploymentDir: tempDir)
+        try await configureNextcloud(deploymentDirectory: tempDir)
         
         // Start PHP-FPM
-        try startPhpFpm(deploymentDir: tempDir)
+        try startPHPFPM(deploymentDir: tempDir)
         
         // Start Apache
         try startApache(deploymentDir: tempDir)
@@ -196,7 +196,6 @@ actor ServerManager: ObservableObject {
         ServerName localhost
         PidFile "\(runDir.path(percentEncoded: false))/httpd.pid"
         ErrorLog "\(logsDir.path(percentEncoded: false))/apache-error.log"
-        CustomLog "\(logsDir.path(percentEncoded: false))/apache-access.log" common
         
         DocumentRoot "\(wwwRoot.path(percentEncoded: false))"
         
@@ -278,28 +277,29 @@ actor ServerManager: ObservableObject {
         """
     }
     
-    private func configureNextcloud(deploymentDir: URL) async throws {
-        logger.info("Configuring Nextcloud")
-        
-        let nextcloudDir = deploymentDir.appending(component: "www/nextcloud")
-        let dataDir = deploymentDir.appending(component: "data")
-        
-        // Create data directory
-        try fileManager.createDirectory(at: dataDir, withIntermediateDirectories: true)
-        
+    private func configureNextcloud(deploymentDirectory: URL) async throws {
+        logger.info("Configuring Nextcloud...")
+
+        let nextcloudDirectory = deploymentDirectory.appending(component: "www/nextcloud")
+        let dataDirectory = deploymentDirectory.appending(component: "data")
+
+        logger.debug("Nextcloud directory: \(nextcloudDirectory.path)")
+
         // Locate Homebrew PHP
-        let phpPath = findHomebrewPhp()
-        
+        guard let phpPath = findHomebrewPHP() else {
+            throw MacCloudError.missingPHP
+        }
+
         // Run Nextcloud installation command
         let process = Process()
         process.executableURL = URL(fileURLWithPath: phpPath)
-        process.currentDirectoryURL = nextcloudDir
+        process.currentDirectoryURL = nextcloudDirectory
+
         process.arguments = [
             "occ",
             "maintenance:install",
             "--database", "sqlite",
             "--database-name", "nextcloud",
-            "--data-dir", dataDir.path(percentEncoded: false),
             "--admin-user", "admin",
             "--admin-pass", "admin"
         ]
@@ -309,35 +309,48 @@ actor ServerManager: ObservableObject {
         environment["NEXTCLOUD_ADMIN_USER"] = "admin"
         environment["NEXTCLOUD_ADMIN_PASSWORD"] = "admin"
         process.environment = environment
-        
+
+        logger.debug("About to run \(process.executableURL?.path ?? "nil") \(process.arguments?.joined(separator: " ") ?? "nil")")
+
         try process.run()
         process.waitUntilExit()
         
         guard process.terminationStatus == 0 else {
-            throw NSError(domain: "ServerManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to configure Nextcloud"])
+            logger.error("PHP terminated with status \(process.terminationStatus): \(process)")
+
+            throw MacCloudError.processExitStatus(executable: process.executableURL, arguments: process.arguments, status: process.terminationStatus)
         }
     }
-    
-    private func findHomebrewPhp() -> String {
-        // Try common Homebrew locations for PHP
+
+    ///
+    /// Check the usual paths for PHP installed via Homebrew and return the first hit.
+    ///
+    /// - Returns: `nil`, if none of the conventional PHP binary locations were found.
+    ///
+    private func findHomebrewPHP() -> String? {
+        logger.debug("Looking for the PHP binary...")
+
         let homebrewPrefixes = [
-            "/opt/homebrew/bin/php",  // Apple Silicon
-            "/usr/local/bin/php"      // Intel
+            "/opt/homebrew/bin/php", // Apple Silicon
+            "/usr/local/bin/php"     // Intel
         ]
         
         for phpPath in homebrewPrefixes {
             if fileManager.fileExists(atPath: phpPath) {
+                logger.debug("Found PHP binary at \(phpPath)")
                 return phpPath
+            } else {
+                logger.debug("PHP binary not found at \(phpPath)")
             }
         }
         
         // Fallback
-        return "/usr/bin/php"
+        return nil
     }
     
-    private func startPhpFpm(deploymentDir: URL) throws {
-        logger.info("Starting PHP-FPM")
-        
+    private func startPHPFPM(deploymentDir: URL) throws {
+        logger.info("Starting PHP-FPM...")
+
         // Locate Homebrew PHP-FPM
         let phpFpmPath = findHomebrewPhpFpm()
         let configPath = deploymentDir.appending(component: "php-fpm.conf")
