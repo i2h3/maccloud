@@ -107,7 +107,7 @@ struct ContentView: View {
         
         Task {
             // Stop the server
-            serverManager.stop()
+            await serverManager.stop()
             serverState = .stopped
         }
     }

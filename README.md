@@ -15,10 +15,14 @@ The intended use case are deployments on ephemeral environments like CI runners.
 
 ## Requirements
 
-- macOS with Xcode Command Line Tools
+- **macOS** with **Xcode** Command Line Tools
 - [Homebrew](https://brew.sh) package manager
-- Apache HTTP Server: `brew install httpd`
-- PHP with FPM: `brew install php`
+- **Apache HTTP Server**: `brew install httpd`
+- **PHP with FPM**: `brew install php@<version>`.
+  At the time of writing, PHP 8.4 was the latest PHP release supported by Nextcloud.
+  In that case, the command should be `brew install "php@8.4"`.
+  Due to it being a specific version, "keg-only" and not automatically symlinked by Homebrew, you also need to run `brew link "php@8.4"`.
+- **512 MB Memory Limit**: Update the memory limit in your php.ini to at least 512 MB.
 
 ## Documentation
 
