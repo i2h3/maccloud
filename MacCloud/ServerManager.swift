@@ -107,7 +107,10 @@ actor ServerManager: ObservableObject {
         try fileManager.createDirectory(at: webRoot, withIntermediateDirectories: true)
         
         // Find unzip command
-        let unzipPath = findUnzip()
+        guard let unzipPath = findUnzip() else {
+            throw MacCloudError.missingUnzip
+        }
+
         guard fileManager.fileExists(atPath: unzipPath) else {
             throw NSError(domain: "ServerManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "unzip command not found. Please install Command Line Tools."])
         }
@@ -123,9 +126,13 @@ actor ServerManager: ObservableObject {
         guard process.terminationStatus == 0 else {
             throw NSError(domain: "ServerManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to extract Nextcloud archive"])
         }
+
+        logger.info("Done extracting Nextcloud.")
     }
     
-    private func findUnzip() -> String {
+    private func findUnzip() -> String? {
+        logger.info("Looking for unzip...")
+
         // Try common locations for unzip
         let commonPaths = [
             "/usr/bin/unzip",
@@ -136,6 +143,7 @@ actor ServerManager: ObservableObject {
         
         for path in commonPaths {
             if fileManager.fileExists(atPath: path) {
+                logger.info("Found unzip at \(path)")
                 return path
             }
         }
@@ -161,18 +169,22 @@ actor ServerManager: ObservableObject {
         } catch {
             // Fall back to default if which fails
         }
-        
-        // Default fallback
-        return "/usr/bin/unzip"
+
+        return nil
     }
     
     private func generateApacheConfig(port: UInt, deploymentDir: URL) throws -> String {
+        logger.info("Generating Apache configuration...")
+
         let wwwRoot = deploymentDir.appending(component: "www/nextcloud")
         let logsDir = deploymentDir.appending(component: "logs")
         let runDir = deploymentDir.appending(component: "run")
         
         // Locate Homebrew Apache installation
-        let apacheRoot = findHomebrewApacheRoot()
+        guard let apacheRoot = findHomebrewApacheRoot() else {
+            throw MacCloudError.missingApache
+        }
+
         let apacheModulesDir = "\(apacheRoot)/lib/httpd/modules"
         let mimeTypesPath = "\(apacheRoot)/etc/httpd/mime.types"
         
@@ -223,7 +235,9 @@ actor ServerManager: ObservableObject {
         """
     }
     
-    private func findHomebrewApacheRoot() -> String {
+    private func findHomebrewApacheRoot() -> String? {
+        logger.info("Finding Homebrew Apache root...")
+
         // Try common Homebrew locations for Apache
         let homebrewPrefixes = [
             "/opt/homebrew",  // Apple Silicon
@@ -245,12 +259,13 @@ actor ServerManager: ObservableObject {
                 return optPath
             }
         }
-        
-        // Fallback to /usr/local if nothing found
-        return "/usr/local"
+
+        return nil
     }
     
     private func generatePhpFpmConfig(deploymentDir: URL) throws -> String {
+        logger.info("Generating PHP-FPM configuration...")
+
         let logsDir = deploymentDir.appending(component: "logs")
         let runDir = deploymentDir.appending(component: "run")
         
@@ -278,7 +293,6 @@ actor ServerManager: ObservableObject {
         logger.info("Configuring Nextcloud...")
 
         let nextcloudDirectory = deploymentDirectory.appending(component: "www/nextcloud")
-        let dataDirectory = deploymentDirectory.appending(component: "data")
 
         logger.debug("Nextcloud directory: \(nextcloudDirectory.path)")
 
@@ -349,7 +363,10 @@ actor ServerManager: ObservableObject {
         logger.info("Starting PHP-FPM...")
 
         // Locate Homebrew PHP-FPM
-        let phpFpmPath = findHomebrewPhpFpm()
+        guard let phpFpmPath = findHomebrewPhpFpm() else {
+            throw MacCloudError.missingPHP
+        }
+
         let configPath = deploymentDir.appending(component: "php-fpm.conf")
         
         let process = Process()
@@ -360,7 +377,9 @@ actor ServerManager: ObservableObject {
         phpFpmProcess = process
     }
     
-    private func findHomebrewPhpFpm() -> String {
+    private func findHomebrewPhpFpm() -> String? {
+        logger.info("Looking for Homebrew PHP-FPM...")
+
         // Try common Homebrew locations for PHP-FPM
         let homebrewPrefixes = [
             "/opt/homebrew/sbin/php-fpm",  // Apple Silicon
@@ -369,19 +388,22 @@ actor ServerManager: ObservableObject {
         
         for phpFpmPath in homebrewPrefixes {
             if fileManager.fileExists(atPath: phpFpmPath) {
+                logger.info("Found PHP-FPM at \(phpFpmPath)")
                 return phpFpmPath
             }
         }
-        
-        // Fallback
-        return "/usr/sbin/php-fpm"
+
+        return nil
     }
     
     private func startApache(deploymentDir: URL) throws {
-        logger.info("Starting Apache")
-        
+        logger.info("Starting Apache...")
+
         // Locate Homebrew Apache (httpd)
-        let apachePath = findHomebrewApache()
+        guard let apachePath = findHomebrewApache() else {
+            throw MacCloudError.missingApache
+        }
+
         let configPath = deploymentDir.appending(component: "httpd.conf")
         
         let process = Process()
@@ -392,20 +414,22 @@ actor ServerManager: ObservableObject {
         apacheProcess = process
     }
     
-    private func findHomebrewApache() -> String {
+    private func findHomebrewApache() -> String? {
+        logger.info("Looking for Homebrew Apache...")
+
         // Try common Homebrew locations for Apache (httpd)
         let homebrewPrefixes = [
-            "/opt/homebrew/bin/httpd",  // Apple Silicon
-            "/usr/local/bin/httpd"      // Intel
+            "/opt/homebrew/bin/httpd", // Apple Silicon
+            "/usr/local/bin/httpd"     // Intel
         ]
         
         for apachePath in homebrewPrefixes {
             if fileManager.fileExists(atPath: apachePath) {
+                logger.info("Found Apache at \(apachePath)")
                 return apachePath
             }
         }
-        
-        // Fallback
-        return "/usr/sbin/httpd"
+
+        return nil
     }
 }
