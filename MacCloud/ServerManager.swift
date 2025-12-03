@@ -11,13 +11,12 @@ import os
 actor ServerManager: ObservableObject {
     private let fileManager = FileManager.default
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "ServerManager")
-    
-    @Published var isRunning = false
-    
+
     private var apacheProcess: Process?
     private var phpFpmProcess: Process?
-    private var deploymentDirectory: URL?
-    
+
+    private(set) var deploymentDirectory: URL?
+
     ///
     /// Start the Nextcloud server.
     ///
@@ -55,17 +54,16 @@ actor ServerManager: ObservableObject {
         
         // Start Apache
         try startApache(deploymentDir: tempDir)
-        
-        isRunning = true
-        logger.info("Nextcloud server started successfully")
+
+        logger.info("Nextcloud server started successfully.")
     }
     
     ///
     /// Stop the Nextcloud server.
     ///
     func stop() {
-        logger.info("Stopping Nextcloud server")
-        
+        logger.info("Stopping Nextcloud server...")
+
         // Stop Apache
         if let process = apacheProcess, process.isRunning {
             process.terminate()
@@ -83,9 +81,8 @@ actor ServerManager: ObservableObject {
             try? fileManager.removeItem(at: deploymentDir)
             deploymentDirectory = nil
         }
-        
-        isRunning = false
-        logger.info("Nextcloud server stopped")
+
+        logger.info("Nextcloud server stopped.")
     }
     
     // MARK: - Private Methods

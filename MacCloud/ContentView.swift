@@ -6,12 +6,14 @@ struct ContentView: View {
     private let nextcloudServerRepository = NextcloudServerRepository()
     private let serverManager = ServerManager()
 
+    @State private var deploymentDirectory: URL?
     @State private var error: String?
     @State private var nextcloudVersion: NextcloudServerVersion = availableNextcloudServerVersions.last ?? NextcloudServerVersion("")
     @State private var port: UInt = 8080
     @State private var serverState: ServerState
 
-    init(error: String? = nil, serverState: ServerState = .stopped) {
+    init(deploymentDirectory: URL? = nil, error: String? = nil, serverState: ServerState = .stopped) {
+        self.deploymentDirectory = deploymentDirectory
         self.error = error
         self.serverState = serverState
     }
@@ -58,7 +60,7 @@ struct ContentView: View {
         .disabled(serverState != .stopped)
         .padding()
         .toolbar {
-            ToolbarItem {
+            ToolbarItemGroup(placement: .primaryAction) {
                 Button {
                     if serverState == .stopped {
                         start()
@@ -79,6 +81,16 @@ struct ContentView: View {
                 }
                 .disabled(serverState == .starting || serverState == .stopping)
             }
+
+            if let deploymentDirectory, serverState == .running {
+                ToolbarItemGroup(placement: .secondaryAction) {
+                    Button {
+                        NSWorkspace.shared.open(deploymentDirectory)
+                    } label: {
+                        Label("Open deployment folder", systemImage: "folder")
+                    }
+                }
+            }
         }
     }
 
@@ -92,11 +104,12 @@ struct ContentView: View {
                 
                 // Start the server with the downloaded archive
                 try await serverManager.start(nextcloudArchive: nextcloudServerArchive, port: port)
-
+                deploymentDirectory = await serverManager.deploymentDirectory
                 serverState = .running
             } catch {
                 self.error = error.localizedDescription
                 serverState = .stopped
+                deploymentDirectory = nil
             }
         }
     }
@@ -109,6 +122,7 @@ struct ContentView: View {
             // Stop the server
             await serverManager.stop()
             serverState = .stopped
+            deploymentDirectory = nil
         }
     }
 }
@@ -124,7 +138,7 @@ struct ContentView: View {
 }
 
 #Preview("Running") {
-    ContentView(serverState: .running)
+    ContentView(deploymentDirectory: FileManager.default.temporaryDirectory, serverState: .running)
         .frame(minWidth: 300, minHeight: 100)
 }
 
